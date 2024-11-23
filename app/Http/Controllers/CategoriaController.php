@@ -1,4 +1,4 @@
-    <?php
+<?php
 
     namespace App\Http\Controllers;
 
@@ -13,7 +13,7 @@
         public function index()
         {
             $categorias = Categoria::all();
-            return view('categorias.index', compact('categorias'));
+            return view(' categorias.index', compact('categorias'));
         }
 
         /**
@@ -31,7 +31,7 @@
         {
             $request->validate([
                 'name' => 'required|unique:categorias,name|max:255',
-                'descripcion' => 'nullable|string|', 
+                'descripcion' => 'nullable|string|',
             ]);
 
             Categoria::create([
