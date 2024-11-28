@@ -21,31 +21,35 @@
     </div>
 </div>
 
-<div class="main-content-inner">
-    <div class="row">
-        <div class="col-12 mt-5">
-            <div class="card">
-                <div class="card-body">
-                    <h4 class="header-title">Crear Almacén</h4>
-                    <form action="{{ route('admin.almacenes.store') }}" method="POST">
-                        @csrf
-                        <div class="form-group">
-                            <label for="nombre">Nombre del Almacén</label>
-                            <input type="text" class="form-control" id="nombre" name="nombre" value="{{ old('nombre') }}" required>
-                            @error('nombre') <span class="text-danger">{{ $message }}</span> @enderror
-                        </div>
-
-                        <div class="form-group">
-                            <label for="ubicacion">Ubicación</label>
-                            <input type="text" class="form-control" id="ubicacion" name="ubicacion" value="{{ old('ubicacion') }}" required>
-                            @error('ubicacion') <span class="text-danger">{{ $message }}</span> @enderror
-                        </div>
-
-                        <button type="submit" class="btn btn-primary">Crear Almacén</button>
-                    </form>
-                </div>
-            </div>
+<div class="container">
+    <h1>Crear Almacén</h1>
+    <form action="{{ route('admin.almacenes.store') }}" method="POST">
+        @csrf
+        <div class="mb-3">
+            <label for="nombre" class="form-label">Nombre</label>
+            <input type="text" class="form-control" id="nombre" name="nombre" required>
         </div>
-    </div>
+        <div class="mb-3">
+            <label for="ubicacion" class="form-label">Dirección</label>
+            <input type="text" class="form-control" id="ubicacion" name="ubicacion" required>
+        </div>
+        <label for="user_id">Asignar Usuario</label>
+<select name="user_id" id="user_id" class="form-control">
+    <option value="">Ninguno</option>
+    @foreach ($usuarios as $usuario)
+        <option value="{{ $usuario->id }}">{{ $usuario->name }}</option>
+    @endforeach
+</select>
+
+        </div>
+        <div class="mb-3">
+            <label for="estado" class="form-label">Estado</label>
+            <select name="estado" id="estado" class="form-select" required>
+                <option value="1">Activo</option>
+                <option value="0">Inactivo</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-success">Guardar</button>
+    </form>
 </div>
 @endsection

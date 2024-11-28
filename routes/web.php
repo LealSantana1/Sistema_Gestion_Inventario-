@@ -13,6 +13,7 @@ use App\Http\Controllers\MarcaController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\TransferenciaAlmacenController;
 use App\Http\Controllers\AlmacenController;
+use App\Http\Controllers\Backend\TransferenciaAlmacenController as BackendTransferenciaAlmacenController;
 use App\Http\Controllers\UbicacionProductoController;
 use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\CotizacionController;
@@ -174,4 +175,13 @@ Route::prefix('admin')->name('admin.')->middleware('auth:admin')->group(function
     // Password Reset Routes
     //Route::get('/password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
     //Route::post('/password/reset/submit', [ForgotPasswordController::class, 'reset'])->name('password.update');
+});
+
+
+
+
+
+Route::prefix('admin')->middleware(['auth'])->group(function () {
+    Route::resource('transferencias', TransferenciaAlmacenController::class)->only(['create', 'store']);
+    // Otras rutas de administración...
 });

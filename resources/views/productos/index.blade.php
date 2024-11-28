@@ -39,6 +39,14 @@
                     </p>
                     <form action="{{ route('admin.productos.index') }}" method="GET" class="mb-4">
                         <div class="row">
+                        <div class="col-md-4">
+                                <select name="almacen_id" id="almacen_id" class="form-control">
+                                    <option value="">Seleccionar Almacen</option>
+                                    @foreach($almacenes as $almacen)
+                                        <option value="{{ $almacen->id }}">{{ $almacen->nombre }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                             <div class="col-md-4">
                                 <select name="categoria_id" id="categoria_id" class="form-control">
                                     <option value="">Seleccionar Categoría</option>
@@ -73,9 +81,11 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>SKU</th>
-                                    <th>Descripción</th>
+                                    <td>Nombre</td>
+                                    <th>Descripcion</th>
                                     <th>Cantidad</th>
                                     <th>Precio</th>
+                                    <th>Almacen</th>
                                     <th>Categoría</th>
                                     <th>Marca</th>
                                     <th>Imagen</th>
@@ -87,9 +97,11 @@
                                     <tr>
                                         <td>{{ $producto->id }}</td>
                                         <td>{{ $producto->sku }}</td>
+                                        <td>{{ $producto->name }}</td>
                                         <td>{{ $producto->Descripcion }}</td>
                                         <td>{{ $producto->cantidad }}</td>
-                                        <td>{{ $producto->precio }}</td>
+                                        <td>{{ $producto->precio_venta }}</td>
+                                        <td>{{ $producto->almacen ? $producto->almacen->nombre : 'N/A'}}</td>
                                         <td>{{ $producto->categoria ? $producto->categoria->name : 'N/A' }}</td>
                                         <td>{{ $producto->marca ? $producto->marca->name : 'N/A' }}</td>
                                         <td>

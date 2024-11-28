@@ -35,7 +35,7 @@ class CotizacionController extends Controller
         $cotizacion = Cotizacion::create($request->all());
             return redirect()->route('admin.cotizaciones.index')->with('success', 'Cotización creada con éxito');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Error al crear l a cotización: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error al crear la cotización: ' . $e->getMessage());
         }
     }
 

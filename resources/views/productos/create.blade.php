@@ -53,7 +53,12 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="Descripcion">Descripción</label>
+                            <label for="name">Nombre</label>
+                            <input type="text" name="name" class="form-control" id="name" value="{{ old('name') }}" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="Descripcion">Descripcion</label>
                             <textarea name="Descripcion" class="form-control" id="Descripcion" rows="3" required>{{ old('Descripcion') }}</textarea>
                         </div>
 
@@ -63,8 +68,33 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="precio">Precio</label>
-                            <input type="number" step="0.01" name="precio" class="form-control" id="precio" value="{{ old('precio') }}" required>
+                            <label for="precio_venta">precio_venta</label>
+                            <input type="number" name="precio_venta" class="form-control" id="precio_venta" value="{{ old('precio_venta', 0) }}" step="0.01" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="precio_compra">Precio_compra</label>
+                            <input type="number" step="0.01" name="precio_compra" class="form-control" id="precio_compra" value="{{ old('precio_compra') }}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="precio_mayor">precio_mayor</label>
+                            <input type="number" step="0.01" name="precio_mayor" class="form-control" id="precio_mayor" value="{{ old('precio_mayor') }}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="precio_distribuidor">precio_distribuidor</label>
+                            <input type="number" step="0.01" name="precio_distribuidor" class="form-control" id="precio_distribuidor" value="{{ old('precio_distribuidor') }}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="almacen_id">Almacen</label>
+                            <select name="almacen_id" class="form-control select2" id="almacen_id" required>
+                                <option value="">Seleccionar almacen</option>
+                                @foreach($almacenes as $almacen)
+                                    <option value="{{ $almacen->id }}">{{ $almacen->nombre }}</option>
+                                @endforeach
+                            </select>
                         </div>
 
                         <div class="form-group">
@@ -109,6 +139,16 @@
                         </div>
 
                         <div class="form-group">
+                            <label for="stock_minimo">stock_minimo</label>
+                            <input type="number" step="0.01" name="stock_minimo" class="form-control" id="stock_minimo" value="{{ old('stock_minimo', 1) }}">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="stock_actual">stock_actual</label>
+                            <input type="number" step="0.01" name="stock_actual" class="form-control" id="stock_actual" value="{{ old('stock_actual', 0) }}">
+                        </div>
+
+                        <div class="form-group">
                             <label for="fecha_creacion">Fecha de Creación</label>
                             <input type="date" name="fecha_creacion" class="form-control" id="fecha_creacion" value="{{ old('fecha_creacion') }}">
                         </div>
@@ -116,9 +156,10 @@
                         <div class="form-group">
                             <label for="status">Estado</label>
                             <select name="status" class="form-control" id="status" required>
-                                <option value="1" {{ old('status', 1) == 1 ? 'selected' : '' }}>Activo</option>
-                                <option value="0" {{ old('status', 1) == 0 ? 'selected' : '' }}>Inactivo</option>
-                            </select>
+    <option value="1" {{ old('status', '1') == '1' ? 'selected' : '' }}>Activo</option>
+    <option value="0" {{ old('status') == '0' ? 'selected' : '' }}>Inactivo</option>
+</select>
+
                         </div>
 
                         <button type="submit" class="btn btn-primary">Crear Producto</button>

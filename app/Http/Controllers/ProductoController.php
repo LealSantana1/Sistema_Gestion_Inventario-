@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Producto;
 use App\Models\Categoria;
 use App\Models\Marca;
+use App\Models\Almacen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -17,6 +18,10 @@ class ProductoController extends Controller
 {
     $query = Producto::query();
 
+    if ($request->has('almacen_id') && $request->almacen_id) {
+        $request->where('almacen_id', $request->almacen_id);
+    }
+
     if ($request->has('categoria_id') && $request->categoria_id) {
         $query->where('categoria_id', $request->categoria_id);
     }
@@ -27,10 +32,12 @@ class ProductoController extends Controller
 
     $productos = $query->get();
 
+    $almacenes = Almacen::all();
     $categorias = Categoria::all();
     $marcas = Marca::all();
+    
 
-    return view('productos.index', compact('productos', 'categorias', 'marcas'));
+    return view('productos.index', compact('almacenes','productos', 'categorias', 'marcas'));
 }
 
 
@@ -39,9 +46,10 @@ class ProductoController extends Controller
      */
     public function create()
     {
+        $almacenes = Almacen::all();
         $categorias = Categoria::all();
         $marcas = Marca::all();
-        return view('productos.create', compact('categorias', 'marcas'));
+        return view('productos.create', compact('almacenes','categorias', 'marcas'));
     }
 
     /**
@@ -51,14 +59,21 @@ class ProductoController extends Controller
     {
         $request->validate([
             'sku' => 'required|string|max:255|unique:productos,sku',
+            'name' => 'required|string|max:255',
             'Descripcion' => 'required|string|max:201155',
             'cantidad' => 'required|integer',
-            'precio' => 'required|numeric',
+            'precio_venta' => 'required|numeric|min:0',
+            'precio_distribuidor' => 'required|numeric',          
+            'precio_compra' => 'required|numeric',            
+            'precio_mayor' => 'required|numeric',          
+            'almacen_id' => 'required|exists:almacenes,id',
             'categoria_id' => 'required|exists:categorias,id',
             'marca_id' => 'required|exists:marcas,id',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'slug' => 'required|string|max:255|unique:productos,slug',
             'detalles_adicionales' => 'nullable|string',
+            'stock_minimo' => 'required|integer|min:1',
+            'stock_actual' => 'required|integer|min:0',
             'descuento' => 'nullable|numeric|min:0|max:100',
             'status' => 'required|integer',
             'fecha_creacion' => 'nullable|date',
@@ -66,14 +81,21 @@ class ProductoController extends Controller
 
         $producto = new Producto();
         $producto->sku = $request->sku;
+        $producto->name = $request->name;
         $producto->Descripcion = $request->Descripcion;
         $producto->cantidad = $request->cantidad;
-        $producto->precio = $request->precio;
+        $producto->precio_venta = $request->precio_venta;
+        $producto->precio_distribuidor = $request->precio_distribuidor;
+        $producto->precio_mayor = $request->precio_mayor;
+        $producto->precio_compra = $request->precio_compra;
+        $producto->almacen_id = $request->almacen_id;
         $producto->categoria_id = $request->categoria_id;
         $producto->marca_id = $request->marca_id;
         $producto->slug = $request->slug;
         $producto->detalles_adicionales = $request->detalles_adicionales;
         $producto->descuento = $request->descuento;
+        $producto->stock_minimo = $request->stock_minimo;
+        $producto->stock_actual = $request->stock_actual;
         $producto->status = $request->status;
         $producto->fecha_creacion = $request->fecha_creacion;
 
@@ -100,7 +122,7 @@ class ProductoController extends Controller
     {
         $categorias = Categoria::all();
         $marcas = Marca::all();
-        return view('productos.edit', compact('producto', 'categorias', 'marcas'));
+        return view('productos.edit', compact('almacen','producto', 'categorias', 'marcas'));
     }
 
     public function show($id)
@@ -117,15 +139,22 @@ class ProductoController extends Controller
     {
         $request->validate([
             'sku' => 'required|string|max:255|unique:productos,sku,' . $producto->id,
+            'name' => 'required|string|max:255',
             'Descripcion' => 'required|string|max:255',
             'cantidad' => 'required|integer',
-            'precio' => 'required|numeric',
+            'precio_venta' => 'required|numeric',
+            'precio_distribuidor' => 'required|numeric',
+            'precio_compra' => 'required|numeric',
+            'precio_mayor', 'required|numeric',
+            'almacen_id' => 'required|exists:almacenes,id',
             'categoria_id' => 'required|exists:categorias,id',
             'marca_id' => 'required|exists:marcas,id',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'slug' => 'required|string|max:255|unique:productos,slug,' . $producto->id,
             'detalles_adicionales' => 'nullable|string',
             'descuento' => 'nullable|numeric|min:0|max:100',
+            'stock_minimo' => 'required|integer|min:0',
+            'stock_actual' => 'required|integer|min:0',
             'status' => 'required|integer',
             'fecha_creacion' => 'nullable|date',
         ]);

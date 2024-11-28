@@ -3,90 +3,81 @@
 namespace App\Http\Controllers;
 
 use App\Models\Almacen;
+use App\Models\UbicacionProducto;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Exception;
+
 
 class AlmacenController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $almacenes = Almacen::all();
+        $almacenes = Almacen::with(['usuario', 'ubicaciones.producto'])->get();
         return view('almacenes.index', compact('almacenes'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        return view('almacenes.create');
+        $usuarios = User::doesntHave('almacenes')->get();
+        return view('almacenes.create', compact('usuarios'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $request->validate([
             'nombre' => 'required|string|max:255',
             'ubicacion' => 'required|string|max:255',
+            'user_id' => 'nullable|exists:users,id',
+            'estado' => 'required|boolean',
         ]);
 
-        Almacen::create([
-            'nombre' => $request->nombre,
-            'ubicacion' => $request->ubicacion,
-        ]);
+        $almacen = Almacen::create($request->all());
 
-        return redirect()->route('admin.almacenes.index')->with('success', 'Almacén creado con éxito.');
+        try {
+            UbicacionProducto::create([
+                'almacen_id' => $almacen->id,
+                'producto_id' => null,
+                'cantidad' => 0,
+                'pasillo' => 'A',
+                'estanteria' => '1',
+            ]);
+        } catch (Exception $e) {
+            Log::error('Error al crear la ubicación para el almacén: ' . $e->getMessage());
+    
+            return back()->with('error', 'Hubo un error al crear la ubicación para el almacén.');
+        }
+        return redirect()->route('admin.almacenes.index')->with('success', 'Almacén creado con éxito');
+
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Almacen $almacen)
-    {
-        return view('almacenes.show', compact('almacen'));
-    }
+    
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Almacen $almacen)
-{
-    return view('almacenes.edit', compact('almacen'));
-}
+    {
+        $usuarios = User::doesntHave('almacenes')->orWhere('id', $almacen->user_id)->get();
+        return view('almacenes.edit', compact('almacen', 'usuarios'));
+    }
 
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Almacen $almacen)
     {
         $request->validate([
             'nombre' => 'required|string|max:255',
             'ubicacion' => 'required|string|max:255',
+            'user_id' => 'nullable|exists:users,id',
+            'estado' => 'required|boolean',
         ]);
 
-        $almacen->update([
-            'nombre' => $request->nombre,
-            'ubicacion' => $request->ubicacion,
-        ]);
+        $almacen->update($request->all());
 
-        return redirect()->route('admin.almacenes.index')->with('success', 'Almacén actualizado con éxito.');
+        return redirect()->route('admin.almacenes.index')->with('success', 'Almacén actualizado con éxito');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Almacen $almacen)
     {
-        try {
-            $almacen->delete();
-            return redirect()->route('admin.almacenes.index')->with('success', 'Almacén eliminado con éxito.');
-        } catch (\Exception $e) {
-            return redirect()->route('admin.almacenes.index')->with('error', 'No se pudo eliminar el almacén.');
-        }
+        $almacen->delete();
+
+        return redirect()->route('admin.almacenes.index')->with('success', 'Almacén eliminado con éxito');
     }
 }
