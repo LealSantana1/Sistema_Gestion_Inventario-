@@ -9,6 +9,10 @@ class Persona extends Model
 {
     use HasFactory;
 
+    public function admin(){
+        return $this->belongsTo(Admin::class);
+    }
+
     public function documento(){
         return $this->belongsTo(Documento::class);
     }

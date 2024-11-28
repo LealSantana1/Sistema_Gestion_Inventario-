@@ -2,97 +2,123 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\TransferenciaAlmacen;
-use App\Models\Producto;
 use App\Models\Almacen;
+use App\Models\Producto;
+use App\Models\TransferenciaAlmacen;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class TransferenciaAlmacenController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Mostrar el listado de transferencias.
      */
     public function index()
     {
-        $transferencias = TransferenciaAlmacen::with(['producto', 'almacenOrigen', 'almacenDestino'])->get();
+        $transferencias = TransferenciaAlmacen::with(['almacenOrigen', 'almacenDestino', 'producto', 'usuario'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         return view('transferencias.index', compact('transferencias'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Mostrar el formulario para crear una nueva transferencia.
      */
     public function create()
     {
-        $productos = Producto::all();
         $almacenes = Almacen::all();
-        return view('transferencias.create', compact('productos', 'almacenes'));
+        $productos = Producto::all();
+
+        return view('transferencias.create', compact('almacenes', 'productos'));
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Guardar una nueva transferencia.
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'producto_id' => 'required|exists:productos,id',
+        // Validación de los datos recibidos
+        $validated = $request->validate([
             'almacen_origen_id' => 'required|exists:almacenes,id',
-            'almacen_destino_id' => 'required|exists:almacenes,id',
-            'cantidad' => 'required|integer|min:1',
+            'almacen_destino_id' => 'required|exists:almacenes,id|different:almacen_origen_id',
+            'productos' => 'required|array', // Asegurarse de que el campo productos esté presente
+            'productos.*.id' => 'required|exists:productos,id', // Cada producto debe tener un ID válido
+            'productos.*.cantidad' => 'required|integer|min:1', // Cada producto debe tener una cantidad válida
         ]);
 
-        TransferenciaAlmacen::create([
-            'producto_id' => $request->producto_id,
-            'almacen_origen_id' => $request->almacen_origen_id,
-            'almacen_destino_id' => $request->almacen_destino_id,
-            'cantidad' => $request->cantidad,
-            'fecha_transferencia' => now(),
-        ]);
+        // Iniciar una transacción para garantizar que todo se ejecute correctamente
+        DB::beginTransaction();
 
-        return redirect()->route('admin.transferencias.index')
-            ->with('success', 'Transferencia realizada con éxito.');
+        try {
+            foreach ($validated['productos'] as $producto) {
+                // Obtener el producto del inventario
+                $productoModel = Producto::findOrFail($producto['id']);
+
+                // Validar que haya stock suficiente en el almacén de origen
+                if ($productoModel->stock_actual < $producto['cantidad']) {
+                    return redirect()->back()->withErrors([
+                        'error' => "Stock insuficiente para el producto: {$productoModel->nombre}",
+                    ]);
+                }
+
+                // Reducir el stock en el almacén de origen
+                $productoModel->stock_actual -= $producto['cantidad'];
+                $productoModel->save();
+
+                // Crear la transferencia de almacén
+                TransferenciaAlmacen::create([
+                    'almacen_origen_id' => $validated['almacen_origen_id'],
+                    'almacen_destino_id' => $validated['almacen_destino_id'],
+                    'producto_id' => $producto['id'],
+                    'cantidad' => $producto['cantidad'],
+                    'usuario_id' => Auth::id(),
+                    'estado' => 'activo',
+                ]);
+            }
+
+            // Confirmar la transacción
+            DB::commit();
+
+            return redirect()->route('admin.transferencias.index')->with('success', 'Transferencia realizada con éxito.');
+
+        } catch (\Exception $e) {
+            // Si ocurre algún error, revertir la transacción
+            DB::rollBack();
+            return redirect()->back()->withErrors(['error' => 'Ocurrió un error al procesar la transferencia.']);
+        }
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Mostrar los detalles de una transferencia específica.
      */
-    public function edit(TransferenciaAlmacen $transferencia)
+    public function show($id)
     {
-        $productos = Producto::all();
-        $almacenes = Almacen::all();
-        return view('transferencias.edit', compact('transferencias', 'productos', 'almacenes'));
+        $transferencia = TransferenciaAlmacen::with(['almacenOrigen', 'almacenDestino', 'producto', 'usuario'])
+            ->findOrFail($id);
+
+        return view('transferencias.show', compact('transferencia'));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Anular una transferencia.
      */
-    public function update(Request $request, TransferenciaAlmacen $transferencia)
+    public function anular($id)
     {
-        $request->validate([
-            'producto_id' => 'required|exists:productos,id',
-            'almacen_origen_id' => 'required|exists:almacenes,id',
-            'almacen_destino_id' => 'required|exists:almacenes,id',
-            'cantidad' => 'required|integer|min:1',
-        ]);
+        $transferencia = TransferenciaAlmacen::findOrFail($id);
 
-        $transferencia->update([
-            'producto_id' => $request->producto_id,
-            'almacen_origen_id' => $request->almacen_origen_id,
-            'almacen_destino_id' => $request->almacen_destino_id,
-            'cantidad' => $request->cantidad,
-            'fecha_transferencia' => now(),
-        ]);
+        if ($transferencia->estado === 'anulado') {
+            return redirect()->back()->withErrors(['error' => 'Esta transferencia ya está anulada.']);
+        }
 
-        return redirect()->route('admin.transferencias.index')
-            ->with('success', 'Transferencia actualizada con éxito.');
-    }
+        $producto = Producto::findOrFail($transferencia->producto_id);
+        $producto->stock_actual += $transferencia->cantidad;
+        $producto->save();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(TransferenciaAlmacen $transferencia)
-    {
-        $transferencia->delete();
-        return redirect()->route('admin.transferencias.index')
-            ->with('success', 'Transferencia eliminada con éxito.');
+        $transferencia->estado = 'anulado';
+        $transferencia->save();
+
+        return redirect()->route('admin.transferencias.index')->with('success', 'Transferencia anulada correctamente.');
     }
 }

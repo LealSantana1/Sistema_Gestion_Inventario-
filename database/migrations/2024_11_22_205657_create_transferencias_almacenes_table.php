@@ -14,18 +14,11 @@ return new class extends Migration
     {
         Schema::create('transferencias_almacenes', function (Blueprint $table) {
             $table->id(); 
-            $table->unsignedBigInteger('producto_id'); 
-            $table->unsignedBigInteger('almacen_origen_id'); 
-            $table->unsignedBigInteger('almacen_destino_id'); 
-            $table->integer('cantidad')->default(0); 
-            $table->timestamp('fecha_transferencia')->default(DB::raw('CURRENT_TIMESTAMP')); 
-            $table->timestamps(); 
-
-            $table->foreign('producto_id')->references('id')->on('productos')->onDelete('cascade'); 
-            $table->foreign('almacen_origen_id')->references('id')->on('almacenes')->onDelete('cascade'); 
-            $table->foreign('almacen_destino_id')->references('id')->on('almacenes')->onDelete('cascade'); 
-
-            $table->index(['producto_id', 'almacen_origen_id', 'almacen_destino_id'], 'transferencias_producto_almacen_index');
+            $table->foreignId('almacen_origen_id')->constrained('almacenes')->onDelete('cascade');
+            $table->foreignId('almacen_destino_id')->constrained('almacenes')->onDelete('cascade');
+            $table->foreignId('producto_id')->constrained('productos')->onDelete('cascade');
+            $table->integer('cantidad');
+            $table->timestamps();
         });
     }
 

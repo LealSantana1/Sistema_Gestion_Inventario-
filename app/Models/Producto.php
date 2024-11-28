@@ -11,18 +11,37 @@ class Producto extends Model
 
     protected $fillable = [
         'sku',
+        'name',
         'Descripcion',
         'cantidad',
-        'precio',
+        'precio_venta',
+        'precio_mayor',
+        'precio_distribuidor',
+        'precio_compra',
         'image',
+        'almacen_id',
         'categoria_id',
         'marca_id',
         'slug',
         'detalles_adicionales',
         'descuento',
+        'stock_minimo',
+        'stock_actual',
         'status',
         'fecha_creacion',
     ];
+
+
+
+    public function producto()
+    {
+    return $this->belongsTo(Producto::class, 'producto_id');
+    }
+
+    public function almacen()
+    {
+        return $this->belongsTo(Almacen::class);
+    }
 
     public function categoria()
     {
@@ -44,3 +63,6 @@ class Producto extends Model
         'fecha_creacion' => 'datetime',
     ];
 }
+
+
+

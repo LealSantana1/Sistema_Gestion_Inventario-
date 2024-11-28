@@ -10,59 +10,37 @@
 @endsection
 
 @section('admin-content')
-<div class="main-content-inner">
-    <div class="row">
-        <div class="col-12 mt-5">
-            <div class="card shadow-lg">
-                <div class="card-body">
-                    <h4 class="header-title text-xl font-semibold text-gray-800">Ubicaciones de Productos</h4>
-                    <a href="{{ route('admin.ubicaciones.create') }}" class="btn btn-success mb-3">
-                        Crear Nueva Ubicación
-                    </a>
-                    <div class="overflow-x-auto">
-                        <table id="dataTable" class="min-w-full bg-white border border-gray-300 shadow-md table-striped">
-                            <thead>
-                                <tr class="text-left bg-gray-100">
-                                    <th class="py-2 px-4 font-medium text-gray-600">#</th>
-                                    <th class="py-2 px-4 font-medium text-gray-600">Producto</th>
-                                    <th class="py-2 px-4 font-medium text-gray-600">Almacén</th>
-                                    <th class="py-2 px-4 font-medium text-gray-600">Cantidad</th>
-                                    <th class="py-2 px-4 font-medium text-gray-600">Pasillo</th>
-                                    <th class="py-2 px-4 font-medium text-gray-600">Estantería</th>
-                                    <th class="py-2 px-4 font-medium text-gray-600">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($ubicaciones as $ubicacion)
-                                    <tr class="border-b border-gray-200 hover:bg-gray-50">
-                                        <td class="py-2 px-4 text-gray-700">{{ $ubicacion->id }}</td>
-                                        <td class="py-2 px-4 text-gray-700">{{ $ubicacion->producto->name }}</td>
-                                        <td class="py-2 px-4 text-gray-700">{{ $ubicacion->almacen->nombre }}</td>
-                                        <td class="py-2 px-4 text-gray-700">{{ $ubicacion->cantidad }}</td>
-                                        <td class="py-2 px-4 text-gray-700">{{ $ubicacion->pasillo }}</td>
-                                        <td class="py-2 px-4 text-gray-700">{{ $ubicacion->estanteria }}</td>
-                                        <td class="py-2 px-4 text-gray-700">
-                                            <a href="{{ route('admin.ubicaciones.edit', $ubicacion->id) }}" class="btn btn-warning text-white">
-                                                Editar
-                                            </a>
-                                            <form action="{{ route('admin.ubicaciones.destroy', $ubicacion->id) }}" method="POST" style="display:inline;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-danger text-white">
-                                                    Eliminar
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="container">
+    <h1>Ubicaciones de Productos</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Almacén</th>
+                <th>Pasillo</th>
+                <th>Estantería</th>
+                <th>Cantidad</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse ($ubicaciones as $ubicacion)
+                <tr>
+                    <td>{{ $ubicacion->producto->nombre }}</td>
+                    <td>{{ $ubicacion->almacen->nombre }}</td>
+                    <td>{{ $ubicacion->pasillo ?? 'N/A' }}</td>
+                    <td>{{ $ubicacion->estanteria ?? 'N/A' }}</td>
+                    <td>{{ $ubicacion->cantidad }}</td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="5">No hay ubicaciones registradas.</td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
 </div>
+
 @endsection
 
 @section('scripts')

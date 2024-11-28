@@ -50,8 +50,9 @@
                     <h4 class="header-title">Create Admin</h4>
                     @include('backend.layouts.partials.messages')
 
-                    <form action="{{ route('admin.admins.store') }}" method="POST">
+                    <form action="{{ route('admin.admins.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
+
                         <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="name">Admin Name</label>
@@ -80,8 +81,8 @@
                                 <select name="roles[]" id="roles" class="form-control select2" multiple x-model="selectedRoles" @change="handleRoleChange">
                                     @foreach ($roles as $role)
                                         <option value="{{ $role->id }}"
-                                            :disabled="isSuperuserSelected && {{ $role->id }} != 1 || !canEnableRole({{ $role->id }})"
-                                            x-bind:class="{ 'disabled-option': isSuperuserSelected && {{ $role->id }} != 1 }">
+                                                :disabled="isSuperuserSelected && {{ $role->id }} != 1 || !canEnableRole({{ $role->id }})"
+                                                x-bind:class="{ 'disabled-option': isSuperuserSelected && {{ $role->id }} != 1 }">
                                             {{ $role->name }}
                                         </option>
                                     @endforeach
@@ -93,13 +94,23 @@
                             </div>
                         </div>
 
+                        <div class="form-row">
+                            <div class="form-group col-md-6 col-sm-12">
+                                <label for="avatar">Admin Avatar</label>
+                                <input type="file" class="form-control" id="avatar" name="avatar" accept="image/*">
+                                <small class="form-text text-muted">Upload an image (JPEG, PNG, or GIF).</small>
+                            </div>
+                        </div>
+
                         <div class="form-group">
-                            <p x-show="isSuperuserSelected" class="superuser-text">This user is a Superuser.</p>
+                            <label for="fecha_creacion">fecha_creacion</label>
+                            <input type="text" class="form-control" id="fecha_creacion" name="fecha_creacion" value="{{ now()->toDateString() }}" readonly>
                         </div>
 
                         <button type="submit" class="btn btn-primary mt-4 pr-4 pl-4">Save</button>
                         <a href="{{ route('admin.admins.index') }}" class="btn btn-secondary mt-4 pr-4 pl-4">Cancel</a>
                     </form>
+
                 </div>
             </div>
         </div>
@@ -120,10 +131,10 @@
                 },
 
                 init() {
-                    // Inicializar Select2
+                    // Initialize Select2
                     $('.select2').select2();
 
-                    // Monitorear cambios en el select
+                    // Monitor changes in the select
                     $('#roles').on('change', () => {
                         this.selectedRoles = $('#roles').val();
                         this.handleRoleChange();
@@ -135,7 +146,7 @@
                 handleRoleChange() {
                     const selectElement = $('#roles');
 
-                    // Deshabilitar o habilitar opciones según la selección de Superuser
+                    // Disable or enable options based on Superuser selection
                     selectElement.find('option').each((_, option) => {
                         const value = $(option).val();
                         if (this.isSuperuserSelected && value !== '1') {
@@ -145,11 +156,11 @@
                         }
                     });
 
-                    // Deshabilitar Superuser si hay otros roles seleccionados
+                    // Disable Superuser if other roles are selected
                     const hasOtherRoles = this.selectedRoles.length > 0 && !this.isSuperuserSelected;
                     selectElement.find('option[value="1"]').prop('disabled', hasOtherRoles);
 
-                    // Actualizar visualmente el estado deshabilitado de las opciones
+                    // Update the visual state of disabled options
                     selectElement.trigger('change.select2');
                 },
 
