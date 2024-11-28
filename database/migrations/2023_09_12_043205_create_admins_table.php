@@ -20,9 +20,7 @@ class CreateAdminsTable extends Migration
             $table->string('username')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->boolean('is_superuser')->default(false); 
-            $table->timestamp('fecha_creacion')->nullable(); 
-            $table->string('avatar')->nullable();
+            $table->boolean('is_superuser')->default(false); // Agregar campo is_superuser
             $table->rememberToken();
             $table->timestamps();
         });

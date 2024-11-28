@@ -1,116 +1,125 @@
-@extends('layouts.app')
+@extends('backend.layouts.master')
 
-@section('title','Crear cliente')
-
-@push('css')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-<style>
-    #box-razon-social {
-        display: none;
-    }
-</style>
-@endpush
-
-@section('content')
-<div class="container-fluid px-4">
-    <h1 class="mt-4 text-center">Crear Cliente</h1>
-    <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('clientes.index')}}">Clientes</a></li>
-        <li class="breadcrumb-item active">Crear cliente</li>
-    </ol>
-
-    <div class="card">
-        <form action="{{ route('clientes.store') }}" method="post">
-            @csrf
-            <div class="card-body text-bg-light">
-
-                <div class="row g-3">
-
-                    <!----Tipo de persona----->
-                    <div class="col-md-6">
-                        <label for="tipo_persona" class="form-label">Tipo de cliente:</label>
-                        <select class="form-select" name="tipo_persona" id="tipo_persona">
-                            <option value="" selected disabled>Seleccione una opción</option>
-                            <option value="natural" {{ old('tipo_persona') == 'natural' ? 'selected' : '' }}>Persona natural</option>
-                            <option value="juridica" {{ old('tipo_persona') == 'juridica' ? 'selected' : '' }}>Persona jurídica</option>
-                        </select>
-                        @error('tipo_persona')
-                        <small class="text-danger">{{'*'.$message}}</small>
-                        @enderror
-                    </div>
-
-                    <!-------Razón social------->
-                    <div class="col-12" id="box-razon-social">
-                        <label id="label-natural" for="razon_social" class="form-label">Nombres y apellidos:</label>
-                        <label id="label-juridica" for="razon_social" class="form-label">Nombre de la empresa:</label>
-
-                        <input required type="text" name="razon_social" id="razon_social" class="form-control" value="{{old('razon_social')}}">
-
-                        @error('razon_social')
-                        <small class="text-danger">{{'*'.$message}}</small>
-                        @enderror
-                    </div>
-
-                    <!------Dirección---->
-                    <div class="col-12">
-                        <label for="direccion" class="form-label">Dirección:</label>
-                        <input required type="text" name="direccion" id="direccion" class="form-control" value="{{old('direccion')}}">
-                        @error('direccion')
-                        <small class="text-danger">{{'*'.$message}}</small>
-                        @enderror
-                    </div>
-
-                    <!--------------Documento------->
-                    <div class="col-md-6">
-                        <label for="documento_id" class="form-label">Tipo de documento:</label>
-                        <select class="form-select" name="documento_id" id="documento_id">
-                            <option value="" selected disabled>Seleccione una opción</option>
-                            @foreach ($documentos as $item)
-                            <option value="{{$item->id}}" {{ old('documento_id') == $item->id ? 'selected' : '' }}>{{$item->tipo_documento}}</option>
-                            @endforeach
-                        </select>
-                        @error('documento_id')
-                        <small class="text-danger">{{'*'.$message}}</small>
-                        @enderror
-                    </div>
-
-                    <div class="col-md-6">
-                        <label for="numero_documento" class="form-label">Numero de documento:</label>
-                        <input required type="text" name="numero_documento" id="numero_documento" class="form-control" value="{{old('numero_documento')}}">
-                        @error('numero_documento')
-                        <small class="text-danger">{{'*'.$message}}</small>
-                        @enderror
-                    </div>
-                </div>
-
-            </div>
-            <div class="card-footer text-center">
-                <button type="submit" class="btn btn-primary">Guardar</button>
-            </div>
-        </form>
-    </div>
-
-
-</div>
+@section('title')
+    Crear Cliente - Panel de Administración
 @endsection
 
-@push('js')
-<script>
-    $(document).ready(function() {
-        $('#tipo_persona').on('change', function() {
-            let selectValue = $(this).val();
-            //natural //juridica
-            if (selectValue == 'natural') {
-                $('#label-juridica').hide();
-                $('#label-natural').show();
-            } else {
-                $('#label-natural').hide();
-                $('#label-juridica').show();
-            }
+@section('styles')
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" />
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" />
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+@endsection
 
-            $('#box-razon-social').show();
+@section('admin-content')
+    <div class="page-title-area">
+        <div class="row align-items-center">
+            <div class="col-sm-6">
+                <h4 class="page-title pull-left">Crear Cliente</h4>
+                <ul class="breadcrumbs pull-left">
+                    <li><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
+                    <li><a href="{{ route('admin.clientes.index') }}">Clientes</a></li>
+                    <li><span>Crear Cliente</span></li>
+                </ul>
+            </div>
+            <div class="col-sm-6 clearfix">
+                @include('backend.layouts.partials.logout')
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content-inner">
+        <div class="row">
+            <div class="col-12 mt-5">
+                <div class="card shadow-lg">
+                    <div class="card-body">
+                        <h4 class="header-title text-center">Crear Cliente</h4>
+                        @include('backend.layouts.partials.messages')
+
+                        <form action="{{ route('admin.clientes.store') }}" method="POST">
+                            @csrf
+                            <div class="form-group">
+                                <label for="tipo_persona">Tipo de Cliente:</label>
+                                <select class="form-control select2" name="tipo_persona" id="tipo_persona">
+                                    <option value="" selected disabled>Seleccione una opción</option>
+                                    <option value="natural" {{ old('tipo_persona') == 'natural' ? 'selected' : '' }}>Persona natural</option>
+                                    <option value="juridica" {{ old('tipo_persona') == 'juridica' ? 'selected' : '' }}>Persona jurídica</option>
+                                </select>
+                                @error('tipo_persona')
+                                <small class="text-danger">{{'*'.$message}}</small>
+                                @enderror
+                            </div>
+
+                            <div class="form-group" id="box-razon-social" style="display: none;">
+                                <label id="label-natural" for="razon_social">Nombres y Apellidos:</label>
+                                <label id="label-juridica" for="razon_social">Nombre de la Empresa:</label>
+                                <input required type="text" name="razon_social" id="razon_social" class="form-control" value="{{ old('razon_social') }}">
+                                @error('razon_social')
+                                <small class="text-danger">{{'*'.$message}}</small>
+                                @enderror
+                            </div>
+
+                            <div class="form-group">
+                                <label for="direccion">Dirección:</label>
+                                <input required type="text" name="direccion" id="direccion" class="form-control" value="{{ old('direccion') }}">
+                                @error('direccion')
+                                <small class="text-danger">{{'*'.$message}}</small>
+                                @enderror
+                            </div>
+
+                            <div class="form-group">
+                                <label for="documento_id">Tipo de Documento:</label>
+                                <select class="form-control select2" name="documento_id" id="documento_id">
+                                    <option value="" selected disabled>Seleccione una opción</option>
+                                    @foreach ($documentos as $item)
+                                        <option value="{{ $item->id }}" {{ old('documento_id') == $item->id ? 'selected' : '' }}>{{ $item->tipo_documento }}</option>
+                                    @endforeach
+                                </select>
+                                @error('documento_id')
+                                <small class="text-danger">{{'*'.$message}}</small>
+                                @enderror
+                            </div>
+
+                            <div class="form-group">
+                                <label for="numero_documento">Número de Documento:</label>
+                                <input required type="text" name="numero_documento" id="numero_documento" class="form-control" value="{{ old('numero_documento') }}">
+                                @error('numero_documento')
+                                <small class="text-danger">{{'*'.$message}}</small>
+                                @enderror
+                            </div>
+
+                            <div class="form-group text-center">
+                                <button type="submit" class="btn btn-success btn-lg">Guardar <i class="fas fa-save"></i></button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@section('scripts')
+    <script>
+        $(document).ready(function() {
+            $('#tipo_persona').on('change', function() {
+                let selectValue = $(this).val();
+                if (selectValue == 'natural') {
+                    $('#label-juridica').hide();
+                    $('#label-natural').show();
+                } else {
+                    $('#label-natural').hide();
+                    $('#label-juridica').show();
+                }
+
+                $('#box-razon-social').show();
+            });
+
+            // Inicializar Select2
+            $('.select2').select2({
+                width: '100%'
+            });
         });
-    });
-</script>
-@endpush
+    </script>
+@endsection

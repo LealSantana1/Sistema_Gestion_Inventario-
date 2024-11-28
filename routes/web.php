@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\compraController;
+use App\Http\Controllers\ventaController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -13,14 +15,13 @@ use App\Http\Controllers\MarcaController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\TransferenciaAlmacenController;
 use App\Http\Controllers\AlmacenController;
-use App\Http\Controllers\Backend\TransferenciaAlmacenController as BackendTransferenciaAlmacenController;
 use App\Http\Controllers\UbicacionProductoController;
 use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\CotizacionController;
 use App\Http\Controllers\CuponController;
 use App\Http\Controllers\ClienteController;
 use App\Models\Cliente;
-
+use App\Models\Proveedor;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -48,19 +49,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
     Route::post('/password/reset', [ForgotPasswordController::class, 'reset'])->name('password.update');
 });
-
-
-
-Route::prefix('admin')->group(function () {
-    Route::get('proveedores', [ProveedorController::class, 'index'])->name('admin.proveedores.index');
-    Route::get('proveedores/create', [ProveedorController::class, 'create'])->name('admin.proveedores.create');
-    Route::post('proveedores', [ProveedorController::class, 'store'])->name('admin.proveedores.store');
-    Route::get('proveedores/{proveedor}/edit', [ProveedorController::class, 'edit'])->name('admin.proveedores.edit');
-    Route::put('proveedores/{proveedor}', [ProveedorController::class, 'update'])->name('admin.proveedores.update');
-    Route::delete('proveedores/{proveedor}', [ProveedorController::class, 'destroy'])->name('admin.proveedores.destroy');
-});
-
-
 
 Route::prefix('admin')->group(function () {
     Route::get('cotizaciones/pdf', [CotizacionController::class, 'pdf'])->name('admin.cotizaciones.pdf');
@@ -93,10 +81,12 @@ Route::prefix('admin')->group(function () {
      Route::get('marcas', [MarcaController::class, 'index'])->name('admin.marcas.index');
      Route::get('marcas/create', [MarcaController::class, 'create'])->name('admin.marcas.create');
      Route::post('marcas', [MarcaController::class, 'store'])->name('admin.marcas.store');
-     Route::get('marcas/{marca}/edit', [MarcaController::class, 'edit'])->name('admin.marcas.edit'); 
-     Route::put('marcas/{marca}', [MarcaController::class, 'update'])->name('admin.marcas.update'); 
-     Route::delete('marcas/{marca}', [MarcaController::class, 'destroy'])->name('admin.marcas.destroy'); 
+     Route::get('marcas/{marca}/edit', [MarcaController::class, 'edit'])->name('admin.marcas.edit');
+     Route::put('marcas/{marca}', [MarcaController::class, 'update'])->name('admin.marcas.update');
+     Route::delete('marcas/{marca}', [MarcaController::class, 'destroy'])->name('admin.marcas.destroy');
  });
+
+
 
 
  Route::prefix('admin')->name('admin.')->group(function () {
@@ -151,10 +141,56 @@ Route::prefix('admin')->name('admin.')->group(function () {
 Route::resource('cupones', CuponController::class);
 });
 
+
+
 Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
-    Route::resource('clientes', ClienteController::class);
+    // Aquí estamos utilizando Route Model Binding de Laravel.
+    Route::get('proveedores', [ProveedorController::class, 'index'])->name('proveedores.index');
+    Route::get('proveedores/create', [ProveedorController::class, 'create'])->name('proveedores.create');
+    Route::post('proveedores', [ProveedorController::class, 'store'])->name('proveedores.store');
+    Route::get('proveedores/{proveedor}/edit', [ProveedorController::class, 'edit'])->name('proveedores.edit');
+    Route::put('proveedores/{proveedor}', [ProveedorController::class, 'update'])->name('proveedores.update');
+    Route::delete('proveedores/{proveedor}', [ProveedorController::class, 'destroy'])->name('proveedores.destroy');
 });
 
+Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
+    Route::get('compras', [CompraController::class, 'index'])->name('compras.index');
+    Route::get('compras/create', [CompraController::class, 'create'])->name('compras.create');
+    Route::post('compras', [CompraController::class, 'store'])->name('compras.store');
+    Route::get('compras/{compra}/edit', [CompraController::class, 'edit'])->name('compras.edit');
+    Route::put('compras/{compra}', [CompraController::class, 'update'])->name('compras.update');
+    Route::delete('compras/{compra}', [CompraController::class, 'destroy'])->name('compras.destroy');
+
+    // Ruta para mostrar los detalles de una compra
+    Route::get('compras/{compra}', [CompraController::class, 'show'])->name('compras.show');
+});
+
+
+Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
+    Route::get('ventas', [VentaController::class, 'index'])->name('ventas.index');
+    Route::get('ventas/create', [VentaController::class, 'create'])->name('ventas.create');
+    Route::post('ventas', [VentaController::class, 'store'])->name('ventas.store');
+    Route::get('ventas/{venta}/edit', [VentaController::class, 'edit'])->name('ventas.edit');
+    Route::put('ventas/{venta}', [VentaController::class, 'update'])->name('ventas.update');
+    Route::delete('ventas/{venta}', [VentaController::class, 'destroy'])->name('ventas.destroy');
+
+    // Ruta para mostrar los detalles de una compra
+    Route::get('ventas/{venta}', [VentaController::class, 'show'])->name('ventas.show');
+});
+
+
+
+
+Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
+    Route::get('clientes', [ClienteController::class, 'index'])->name('clientes.index');
+    Route::get('clientes/create', [ClienteController::class, 'create'])->name('clientes.create');
+    Route::post('clientes', [ClienteController::class, 'store'])->name('clientes.store');
+    Route::get('clientes/{cliente}/edit', [ClienteController::class, 'edit'])->name('clientes.edit');
+    Route::put('clientes/{cliente}', [ClienteController::class, 'update'])->name('clientes.update');
+    Route::delete('clientes/{cliente}', [ClienteController::class, 'destroy'])->name('clientes.destroy');
+    Route::put('admin/clientes/{cliente}', [ClienteController::class, 'update'])->name('admin.clientes.update');
+
+});
 
 // Admin Routes (protected by auth:admin)
 Route::prefix('admin')->name('admin.')->middleware('auth:admin')->group(function () {
@@ -175,13 +211,4 @@ Route::prefix('admin')->name('admin.')->middleware('auth:admin')->group(function
     // Password Reset Routes
     //Route::get('/password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
     //Route::post('/password/reset/submit', [ForgotPasswordController::class, 'reset'])->name('password.update');
-});
-
-
-
-
-
-Route::prefix('admin')->middleware(['auth'])->group(function () {
-    Route::resource('transferencias', TransferenciaAlmacenController::class)->only(['create', 'store']);
-    // Otras rutas de administración...
 });

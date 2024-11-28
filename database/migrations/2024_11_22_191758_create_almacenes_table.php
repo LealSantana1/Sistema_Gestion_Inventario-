@@ -15,8 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string('nombre')->nullable();
             $table->string('ubicacion');
-            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
-            $table->boolean('estado')->default(1); 
             $table->timestamps();
         });
     }
@@ -24,10 +22,8 @@ return new class extends Migration
     /**
      * Reverse the migrations.
      */
-    public function down()
-{
-    Schema::table('almacenes', function (Blueprint $table) {
-        $table->unsignedBigInteger('user_id')->nullable(false)->change();
-    });
-}
+    public function down(): void
+    {
+        Schema::dropIfExists('almacenes');
+    }
 };

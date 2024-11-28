@@ -34,7 +34,7 @@
             <div class="card">
                 <div class="card-body">
                     <h4 class="header-title float-left">Marcas</h4>
-                    
+
                     <p class="float-right mb-2">
                         <a class="btn btn-primary text-white" href="{{ route('admin.marcas.create') }}">Crear Nueva Marca</a>
                     </p>

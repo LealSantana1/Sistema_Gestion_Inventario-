@@ -20,63 +20,48 @@
     </div>
 </div>
 
-<div class="container">
-    <h1>Almacenes</h1>
-    <a href="{{ route('admin.almacenes.create') }}" class="btn btn-primary">Agregar</a>
-    <table class="table table-bordered mt-4">
-        <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Ubicación</th>
-                <th>Usuario Asignado</th>
-                <th>Estado</th>
-                <th>Opciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($almacenes as $almacen)
-            <tr>
-                <td>{{ $almacen->nombre }}</td>
-                <td>{{ $almacen->ubicacion }}</td>
-                <td>{{ $almacen->usuario->name ?? 'No asignado' }}</td>
-                <td>
-                    @if ($almacen->estado)
-                    <span class="text-success">
-                        <i class="fas fa-check-circle"></i> Activo
-                    </span>
-                    @else
-                    <span class="text-danger">
-                        <i class="fas fa-times-circle"></i> Inactivo
-                    </span>
-                    @endif
-                </td>
-
-                <td>
-                    <ul>
-                        @foreach ($almacen->ubicaciones as $ubicacion)
-                            <li>
-                                Producto: {{ $ubicacion->producto ? $ubicacion->producto->nombre : 'No asignado' }}<br>
-                                Cantidad: {{ $ubicacion->cantidad }}<br>
-                                Pasillo: {{ $ubicacion->pasillo }}<br>
-                                Estantería: {{ $ubicacion->estanteria }}
-                            </li>
-                        @endforeach
-                    </ul>
-                </td>
-
-                <td>
-                    <a href="{{ route('admin.almacenes.edit', $almacen) }}" class="btn btn-warning btn-sm"><i class="fa fa-edit"></i></a>
-                    <form action="{{ route('admin.almacenes.destroy', $almacen) }}" method="POST" style="display: inline;">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de eliminar este producto?')">
-                            <i class="fa fa-trash"></i>
-                        </button>
-                    </form>
-                </td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
+<div class="main-content-inner">
+    <div class="row">
+        <div class="col-12 mt-5">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="header-title float-left">Almacenes</h4>
+                    <a class="btn btn-primary text-white float-right" href="{{ route('admin.almacenes.create') }}">Crear Nuevo Almacén</a>
+                    <div class="clearfix"></div>
+                    <div class="data-tables">
+                        @include('backend.layouts.partials.messages')
+                        <table id="dataTable" class="text-center table table-bordered">
+                            <thead class="bg-light text-capitalize">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Ubicación</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                               @foreach ($almacenes as $almacen)
+                               <tr>
+                                    <td>{{ $almacen->id }}</td>
+                                    <td>{{ $almacen->nombre }}</td>
+                                    <td>{{ $almacen->ubicacion }}</td>
+                                    <td>
+                                        <a class="btn btn-info" href="{{ route('admin.almacenes.show', $almacen->id) }}">Ver</a>
+                                        <a class="btn btn-warning" href="{{ route('admin.almacenes.edit', $almacen->id) }}">Editar</a>
+                                        <form action="{{ route('admin.almacenes.destroy', $almacen->id) }}" method="POST" style="display:inline;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro de eliminar este almacén?')">Eliminar</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                               @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection

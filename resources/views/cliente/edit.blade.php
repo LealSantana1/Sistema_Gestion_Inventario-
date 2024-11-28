@@ -1,91 +1,136 @@
-@extends('layouts.app')
+@extends('backend.layouts.master')
 
-@section('title','Editar cliente')
-
-@push('css')
-
-@endpush
-
-@section('content')
-<div class="container-fluid px-4">
-    <h1 class="mt-4 text-center">Editar Cliente</h1>
-    <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('clientes.index')}}">Clientes</a></li>
-        <li class="breadcrumb-item active">Editar cliente</li>
-    </ol>
-
-    <div class="card text-bg-light">
-        <form action="{{ route('clientes.update',['cliente'=>$cliente]) }}" method="post">
-            @method('PATCH')
-            @csrf
-            <div class="card-header">
-                <p>Tipo de cliente: <span class="fw-bold">{{ strtoupper($cliente->persona->tipo_persona)}}</span></p>
-            </div>
-            <div class="card-body">
-
-                <div class="row g-3">
-
-                    <!-------Razón social------->
-                    <div class="col-12">
-                        @if ($cliente->persona->tipo_persona == 'natural')
-                        <label id="label-natural" for="razon_social" class="form-label">Nombres y apellidos:</label>
-                        @else
-                        <label id="label-juridica" for="razon_social" class="form-label">Nombre de la empresa:</label>
-                        @endif
-
-                        <input required type="text" name="razon_social" id="razon_social" class="form-control" value="{{old('razon_social',$cliente->persona->razon_social)}}">
-
-                        @error('razon_social')
-                        <small class="text-danger">{{'*'.$message}}</small>
-                        @enderror
-                    </div>
-
-                    <!------Dirección---->
-                    <div class="col-12">
-                        <label for="direccion" class="form-label">Dirección:</label>
-                        <input required type="text" name="direccion" id="direccion" class="form-control" value="{{old('direccion',$cliente->persona->direccion)}}">
-                        @error('direccion')
-                        <small class="text-danger">{{'*'.$message}}</small>
-                        @enderror
-                    </div>
-
-                    <!--------------Documento------->
-                    <div class="col-md-6">
-                        <label for="documento_id" class="form-label">Tipo de documento:</label>
-                        <select class="form-select" name="documento_id" id="documento_id">
-                            @foreach ($documentos as $item)
-                            @if ($cliente->persona->documento_id == $item->id)
-                            <option selected value="{{$item->id}}" {{ old('documento_id') == $item->id ? 'selected' : '' }}>{{$item->tipo_documento}}</option>
-                            @else
-                            <option value="{{$item->id}}" {{ old('documento_id') == $item->id ? 'selected' : '' }}>{{$item->tipo_documento}}</option>
-                            @endif
-                            @endforeach
-                        </select>
-                        @error('documento_id')
-                        <small class="text-danger">{{'*'.$message}}</small>
-                        @enderror
-                    </div>
-
-                    <div class="col-md-6">
-                        <label for="numero_documento" class="form-label">Numero de documento:</label>
-                        <input required type="text" name="numero_documento" id="numero_documento" class="form-control" value="{{old('numero_documento',$cliente->persona->numero_documento)}}">
-                        @error('numero_documento')
-                        <small class="text-danger">{{'*'.$message}}</small>
-                        @enderror
-                    </div>
-
-                </div>
-
-            </div>
-            <div class="card-footer text-center">
-                <button type="submit" class="btn btn-primary">Guardar</button>
-            </div>
-        </form>
-    </div>
-</div>
+@section('title')
+    Editar Cliente - Panel de Administración
 @endsection
 
-@push('js')
+@section('styles')
+    <!-- Agregar estilos si es necesario -->
+    <style>
+        .form-control {
+            display: inline-block;
+            width: calc(100% - 40px);
+            padding-left: 30px;
+            position: relative;
+        }
 
-@endpush
+        .form-control i {
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            color: #ccc;
+        }
+
+        /* Centrar los botones */
+        .button-group {
+            display: flex;
+            justify-content: center; /* Centra los botones horizontalmente */
+            gap: 10px; /* Espacio entre los botones */
+            margin-top: 20px; /* Añadir un pequeño margen superior */
+        }
+
+        .btn {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+    </style>
+@endsection
+
+@section('admin-content')
+    <div class="page-title-area">
+        <div class="row align-items-center">
+            <div class="col-sm-6">
+                <div class="breadcrumbs-area clearfix">
+                    <h4 class="page-title pull-left">Editar Cliente</h4>
+                    <ul class="breadcrumbs pull-left">
+                        <li><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
+                        <li><a href="{{ route('admin.clientes.index') }}">Clientes</a></li>
+                        <li><span>Editar Cliente</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-sm-6 clearfix">
+                @include('backend.layouts.partials.logout')
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content-inner">
+        <div class="row">
+            <div class="col-12 mt-5">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="header-title">Editar Cliente: {{ $cliente->persona->razon_social }}</h4>
+
+                        <!-- Formulario de edición del cliente -->
+                        <form action="{{ route('admin.clientes.update', $cliente->id) }}" method="POST">
+                            @csrf
+                            @method('PUT')
+
+                            <div class="row">
+                                <!-- Nombre del Cliente -->
+                                <div class="col-md-4 mb-3">
+                                    <label for="nombre"><i class="fa fa-user"></i> Nombre</label>
+                                    <input type="text" name="nombre" id="nombre" class="form-control"
+                                           value="{{ old('nombre', $cliente->persona->razon_social) }}" required>
+                                </div>
+
+                                <!-- Tipo de Documento -->
+                                <div class="col-md-4 mb-3">
+                                    <label for="documento_id"><i class="fa fa-id-card"></i> Tipo de Documento</label>
+                                    <select name="documento_id" id="documento_id" class="form-control">
+                                        <option value="">Seleccionar tipo de documento</option>
+                                        @foreach($documentos as $documento)
+                                            <option value="{{ $documento->id }}"
+                                                {{ old('documento_id', $cliente->persona->documento_id) == $documento->id ? 'selected' : '' }}>
+                                                {{ $documento->tipo_documento }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <!-- Número de Documento -->
+                                <div class="col-md-4 mb-3">
+                                    <label for="numero_documento"><i class="fa fa-file-alt"></i> Número de Documento</label>
+                                    <input type="text" name="numero_documento" id="numero_documento" class="form-control"
+                                           value="{{ old('numero_documento', $cliente->persona->numero_documento) }}" required>
+                                </div>
+
+                                <!-- Tipo de Cliente -->
+                                <div class="col-md-4 mb-3">
+                                    <label for="tipo_persona"><i class="fa fa-users"></i> Tipo de Cliente</label>
+                                    <select name="tipo_persona" id="tipo_persona" class="form-control">
+                                        <option value="natural" {{ old('tipo_persona', $cliente->persona->tipo_persona) == 'natural' ? 'selected' : '' }}>Persona Natural</option>
+                                        <option value="juridica" {{ old('tipo_persona', $cliente->persona->tipo_persona) == 'juridica' ? 'selected' : '' }}>Persona Jurídica</option>
+                                    </select>
+                                </div>
+
+                                <!-- Estado del Cliente -->
+                                <div class="col-md-4 mb-3">
+                                    <label for="estado"><i class="fa fa-toggle-on"></i> Estado</label>
+                                    <select name="estado" id="estado" class="form-control">
+                                        <option value="1" {{ old('estado', $cliente->persona->estado) == 1 ? 'selected' : '' }}>Activo</option>
+                                        <option value="0" {{ old('estado', $cliente->persona->estado) == 0 ? 'selected' : '' }}>Inactivo</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-12">
+                                    <!-- Grupo de botones centrados -->
+                                    <div class="button-group">
+                                        <button type="submit" class="btn btn-success"><i class="fa fa-save"></i> Actualizar Cliente</button>
+                                        <a href="{{ route('admin.clientes.index') }}" class="btn btn-secondary"><i class="fa fa-times"></i> Cancelar</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+@endsection
+
+@section('scripts')
+    <!-- Agregar scripts si es necesario -->
+@endsection

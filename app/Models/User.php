@@ -3,15 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticable; 
-use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Model;
 
-class User extends Authenticable
+class User extends Model
 {
-    use HasFactory, Notifiable; 
-
-    public function almacenes()
-    {
-        return $this->hasOne(Almacen::class); 
-    }
+    use HasFactory;
 }

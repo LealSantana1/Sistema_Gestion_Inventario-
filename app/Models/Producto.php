@@ -11,36 +11,28 @@ class Producto extends Model
 
     protected $fillable = [
         'sku',
-        'name',
+        'nombre',
         'Descripcion',
-        'cantidad',
-        'precio_venta',
-        'precio_mayor',
-        'precio_distribuidor',
-        'precio_compra',
+
+        'precio',
         'image',
-        'almacen_id',
         'categoria_id',
         'marca_id',
         'slug',
         'detalles_adicionales',
         'descuento',
-        'stock_minimo',
-        'stock_actual',
         'status',
         'fecha_creacion',
     ];
-
-
-
-    public function producto()
+    public function compras()
     {
-    return $this->belongsTo(Producto::class, 'producto_id');
+        return $this->belongsToMany(Compra::class)->withTimestamps()
+            ->withPivot('cantidad', 'precio_compra', 'precio_venta');
     }
-
-    public function almacen()
+    public function ventas()
     {
-        return $this->belongsTo(Almacen::class);
+        return $this->belongsToMany(Venta::class)->withTimestamps()
+            ->withPivot('cantidad', 'precio_venta', 'descuento');
     }
 
     public function categoria()
@@ -58,11 +50,7 @@ class Producto extends Model
         return asset('storage/' . $this->image);
     }
 
-
     protected $casts = [
         'fecha_creacion' => 'datetime',
     ];
 }
-
-
-

@@ -13,34 +13,35 @@ use Illuminate\Support\Facades\DB;
 
 class ClienteController extends Controller
 {
-    function __construct()
+    public function index(Request $request)
     {
-        $this->middleware('permission:ver-cliente|crear-cliente|editar-cliente|eliminar-cliente', ['only' => ['index']]);
-        $this->middleware('permission:crear-cliente', ['only' => ['create', 'store']]);
-        $this->middleware('permission:editar-cliente', ['only' => ['edit', 'update']]);
-        $this->middleware('permission:eliminar-cliente', ['only' => ['destroy']]);
-    }
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        $clientes = Cliente::with('persona.documento')->get();
-        return view('cliente.index', compact('clientes'));
+        $clientes = Cliente::with('persona.documento');
+
+        if ($request->has('tipo_persona') && in_array($request->tipo_persona, ['natural', 'juridica'])) {
+            $clientes->whereHas('persona', function ($query) use ($request) {
+                $query->where('tipo_persona', $request->tipo_persona);
+            });
+        }
+
+        if ($request->has('documento_id') && $request->documento_id != '') {
+            $clientes->whereHas('persona.documento', function ($query) use ($request) {
+                $query->where('id', $request->documento_id);
+            });
+        }
+
+        $clientes = $clientes->get();
+
+        $documentos = Documento::all();
+
+        return view('cliente.index', compact('clientes', 'documentos'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         $documentos = Documento::all();
         return view('cliente.create', compact('documentos'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StorePersonaRequest $request)
     {
         try {
@@ -57,17 +58,10 @@ class ClienteController extends Controller
         return redirect()->route('admin.clientes.index')->with('success', 'Cliente registrado');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
-        //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Cliente $cliente)
     {
         $cliente->load('persona.documento');
@@ -75,9 +69,6 @@ class ClienteController extends Controller
         return view('cliente.edit', compact('cliente', 'documentos'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(UpdateClienteRequest $request, Cliente $cliente)
     {
         try {
@@ -94,27 +85,26 @@ class ClienteController extends Controller
         return redirect()->route('admin.clientes.index')->with('success', 'Cliente editado');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
-        $message = '';
-        $persona = Persona::find($id);
-        if ($persona->estado == 1) {
-            Persona::where('id', $persona->id)
-                ->update([
-                    'estado' => 0
-                ]);
-            $message = 'Cliente eliminado';
-        } else {
-            Persona::where('id', $persona->id)
-                ->update([
-                    'estado' => 1
-                ]);
-            $message = 'Cliente restaurado';
-        }
+        try {
+            DB::beginTransaction();
 
-        return redirect()->route('admin.clientes.index')->with('success', $message);
+            $persona = Persona::find($id);
+            if ($persona) {
+                $persona->cliente()->delete();
+                $persona->delete();
+
+                DB::commit();
+
+                return redirect()->route('admin.clientes.index')->with('success', 'Cliente eliminado');
+            } else {
+                return redirect()->route('admin.clientes.index')->with('error', 'Cliente no encontrado');
+            }
+
+        } catch (Exception $e) {
+            DB::rollBack();
+            return redirect()->route('admin.clientes.index')->with('error', 'Error al eliminar el cliente');
+        }
     }
 }
