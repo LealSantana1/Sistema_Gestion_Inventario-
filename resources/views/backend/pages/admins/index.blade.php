@@ -41,7 +41,7 @@
                 <div class="card-body">
                     <h4 class="header-title float-left">{{ __('Admins') }}</h4>
                     <p class="float-right mb-2">
-                        @if (auth()->user()->can('admin.create'))
+                        @if (auth()->user()->can('admin.edit'))
                             <a class="btn btn-primary text-white" href="{{ route('admin.admins.create') }}">
                                 {{ __('Create New Admin') }}
                             </a>
@@ -54,12 +54,9 @@
                             <thead class="bg-light text-capitalize">
                                 <tr>
                                     <th width="5%">{{ __('Sl') }}</th>
-                                    <th width="10%">{{ __('Avatar') }}</th>
                                     <th width="10%">{{ __('Name') }}</th>
                                     <th width="10%">{{ __('Email') }}</th>
-                                    <th width="15%">{{ __('Roles') }}</th>
-                                    <th width="10%">{{ __('Persona ID') }}</th> 
-                                    <th width="10%">{{ __('Estado') }}</th> 
+                                    <th width="40%">{{ __('Roles') }}</th>
                                     <th width="15%">{{ __('Action') }}</th>
                                 </tr>
                             </thead>
@@ -67,16 +64,6 @@
                                @foreach ($admins as $admin)
                                <tr>
                                     <td>{{ $loop->index+1 }}</td>
-                        
-                                    <td>
-                                            @if($admin->avatar && file_exists(public_path($admin->avatar)))
-                                                <img src="{{ asset($admin->avatar) }}" alt="avatars" width="150" style="width: 50px; height: 50px; border-radius: 50%;">
-                                            @else
-                                                <span>No disponible</span>
-                                            @endif
-                                        </td>
-
-
                                     <td>{{ $admin->name }}</td>
                                     <td>{{ $admin->email }}</td>
                                     <td>
@@ -86,25 +73,14 @@
                                             </span>
                                         @endforeach
                                     </td>
-
-                                    <!-- Persona ID -->
-                                    <td>{{ $admin->persona_id ?? 'Not Available' }}</td>
-
-                                    <!-- Estado -->
-                                    <td>
-                                    <span class="badge badge-success">
-                                        Active
-                                    </span>
-                                    </td>
-
                                     <td>
                                         @if (auth()->user()->can('admin.edit'))
-                                            <a class="btn btn-success text-white" href="{{ route('admin.admins.edit', $admin->id) }}">{{ __('Edit') }}</a>
+                                            <a class="btn btn-success text-white" href="{{ route('admin.admins.edit', $admin->id) }}">Edit</a>
                                         @endif
                                         
                                         @if (auth()->user()->can('admin.delete'))
                                         <a class="btn btn-danger text-white" href="javascript:void(0);"
-                                        onclick="event.preventDefault(); if(confirm('{{ __('Are you sure you want to delete?') }}')) { document.getElementById('delete-form-{{ $admin->id }}').submit(); }">
+                                        onclick="event.preventDefault(); if(confirm('Are you sure you want to delete?')) { document.getElementById('delete-form-{{ $admin->id }}').submit(); }">
                                             {{ __('Delete') }}
                                         </a>
 

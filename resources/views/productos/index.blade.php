@@ -6,102 +6,92 @@
 
 @section('styles')
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.18/css/dataTables.bootstrap4.min.css">   
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.18/css/dataTables.bootstrap4.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.bootstrap.min.css">
 @endsection
 
 @section('admin-content')
-<div class="page-title-area">
-    <div class="row align-items-center">
-        <div class="col-sm-6">
-            <div class="breadcrumbs-area clearfix">
-                <h4 class="page-title pull-left">Productos</h4>
-                <ul class="breadcrumbs pull-left">
-                    <li><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
-                    <li><span>Productos</span></li>
-                </ul>
+    <div class="page-title-area">
+        <div class="row align-items-center">
+            <div class="col-sm-6">
+                <div class="breadcrumbs-area clearfix">
+                    <h4 class="page-title pull-left">Productos</h4>
+                    <ul class="breadcrumbs pull-left">
+                        <li><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
+                        <li><span>Productos</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-sm-6 clearfix">
+                @include('backend.layouts.partials.logout')
             </div>
         </div>
-        <div class="col-sm-6 clearfix">
-            @include('backend.layouts.partials.logout')
-        </div>
     </div>
-</div>
 
-<div class="main-content-inner">
-    <div class="row">
-        <div class="col-12 mt-5">
-            <div class="card">
-                <div class="card-body">
-                    <div class="col-3"></div>
-                    <p class="float-right mb-2">
-                        <a class="btn btn-primary text-white" href="{{ route('admin.productos.create') }}">Crear nuevo producto</a>
-                    </p>
-                    <form action="{{ route('admin.productos.index') }}" method="GET" class="mb-4">
-                        <div class="row">
-                        <div class="col-md-4">
-                                <select name="almacen_id" id="almacen_id" class="form-control">
-                                    <option value="">Seleccionar Almacen</option>
-                                    @foreach($almacenes as $almacen)
-                                        <option value="{{ $almacen->id }}">{{ $almacen->nombre }}</option>
-                                    @endforeach
-                                </select>
+    <div class="main-content-inner">
+        <div class="row">
+            <div class="col-12 mt-5">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="col-3"></div>
+                        <p class="float-right mb-2">
+                            <a class="btn btn-primary text-white" href="{{ route('admin.productos.create') }}">Crear nuevo producto</a>
+                        </p>
+                        <form action="{{ route('admin.productos.index') }}" method="GET" class="mb-4">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <select name="categoria_id" id="categoria_id" class="form-control">
+                                        <option value="">Seleccionar Categoría</option>
+                                        @foreach($categorias as $categoria)
+                                            <option value="{{ $categoria->id }}">{{ $categoria->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <select name="marca_id" id="marca_id" class="form-control">
+                                        <option value="">Seleccionar Marca</option>
+                                        @foreach($marcas as $marca)
+                                            <option value="{{ $marca->id }}">{{ $marca->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="col-md-2">
+                                    <label>&nbsp;</label>
+                                    <button type="submit" class="btn btn-primary form-control">Filtrar</button>
+                                </div>
                             </div>
-                            <div class="col-md-4">
-                                <select name="categoria_id" id="categoria_id" class="form-control">
-                                    <option value="">Seleccionar Categoría</option>
-                                    @foreach($categorias as $categoria)
-                                        <option value="{{ $categoria->id }}">{{ $categoria->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
+                        </form>
 
-                            <div class="col-md-3">
-                                <select name="marca_id" id="marca_id" class="form-control">
-                                    <option value="">Seleccionar Marca</option>
-                                    @foreach($marcas as $marca)
-                                        <option value="{{ $marca->id }}">{{ $marca->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
+                        @include('backend.layouts.partials.messages')
 
-                            <div class="col-md-2">
-                                <label>&nbsp;</label>
-                                <button type="submit" class="btn btn-primary form-control">Filtrar</button>
-                            </div>
-                        </div>
-                    </form>
-
-                    @include('backend.layouts.partials.messages')
-
-                    <div class="data-tables">
-                        <table id="data-Table" class="table table-striped table-hover table-bordered">
-                            <div class="clearfix"></div>
-                            <thead class="bg-primary text-white border-bottom">
+                        <div class="data-tables">
+                            <table id="data-Table" class="table table-striped table-hover table-bordered">
+                                <div class="clearfix"></div>
+                                <thead class="bg-primary text-white border-bottom">
                                 <tr>
                                     <th>ID</th>
                                     <th>SKU</th>
-                                    <td>Nombre</td>
-                                    <th>Descripcion</th>
+                                    <th>Nombre</th> <!-- Campo Nombre agregado -->
+                                    <th>Descripción</th>
                                     <th>Cantidad</th>
                                     <th>Precio</th>
-                                    <th>Almacen</th>
                                     <th>Categoría</th>
                                     <th>Marca</th>
                                     <th>Imagen</th>
                                     <th>Acciones</th>
                                 </tr>
-                            </thead>
-                            <tbody>
+                                </thead>
+                                <tbody>
                                 @foreach($productos as $producto)
                                     <tr>
                                         <td>{{ $producto->id }}</td>
                                         <td>{{ $producto->sku }}</td>
-                                        <td>{{ $producto->name }}</td>
+                                        <td>{{ $producto->nombre }}</td> <!-- Nombre del producto -->
                                         <td>{{ $producto->Descripcion }}</td>
                                         <td>{{ $producto->cantidad }}</td>
-                                        <td>{{ $producto->precio_venta }}</td>
-                                        <td>{{ $producto->almacen ? $producto->almacen->nombre : 'N/A'}}</td>
+                                        <td>{{ $producto->precio }}</td>
                                         <td>{{ $producto->categoria ? $producto->categoria->name : 'N/A' }}</td>
                                         <td>{{ $producto->marca ? $producto->marca->name : 'N/A' }}</td>
                                         <td>
@@ -112,9 +102,9 @@
                                             @endif
                                         </td>
                                         <td>
-                                        <a href="{{ route('admin.productos.show', $producto->id) }}" class="btn btn-info btn-sm">
+                                            <a href="{{ route('admin.productos.show', $producto->id) }}" class="btn btn-info btn-sm">
                                                 <i class="fa fa-eye"></i> Ver Detalles
-                                        </a>
+                                            </a>
 
                                             <a href="{{ route('admin.productos.edit', $producto->id) }}" class="btn btn-primary btn-sm">
                                                 <i class="fa fa-edit"></i>
@@ -129,14 +119,14 @@
                                         </td>
                                     </tr>
                                 @endforeach
-                            </tbody>
-                        </table>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
 @endsection
 
@@ -151,9 +141,4 @@
             });
         }
     </script>
-
-    
 @endsection
-
-
-

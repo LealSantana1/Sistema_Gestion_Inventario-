@@ -9,18 +9,13 @@ class Persona extends Model
 {
     use HasFactory;
 
-    public function admin(){
-        return $this->belongsTo(Admin::class);
-    }
-
     public function documento(){
         return $this->belongsTo(Documento::class);
     }
 
-    public function proveedore(){
+    public function proveedor(){
         return $this->hasOne(Proveedor::class);
     }
-
     public function cliente(){
         return $this->hasOne(Cliente::class);
     }

@@ -1,130 +1,148 @@
 @extends('backend.layouts.master')
 
-@section('title', 'Clientes - Panel de Administración')
+@section('title')
+    Clientes - Panel de Administración
+@endsection
 
 @section('styles')
-    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.18/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.bootstrap.min.css">
+    <style>
+        .table th, .table td {
+            vertical-align: middle;
+        }
+        .icon-column {
+            width: 50px;
+            text-align: center;
+        }
+        .badge-success {
+            background-color: #28a745;
+        }
+        .badge-danger {
+            background-color: #dc3545;
+        }
+    </style>
 @endsection
 
 @section('admin-content')
-    <div class="container-fluid px-4">
-        <h1 class="mt-4 text-center">Clientes</h1>
-        <ol class="breadcrumb mb-4">
-            <li class="breadcrumb-item"><a href="{{ route('admin.panel') }}">Inicio</a></li>
-            <li class="breadcrumb-item active">Clientes</li>
-        </ol>
-
-        @can('crear-cliente')
-            <div class="mb-4">
-                <a href="{{ route('admin.clientes.create') }}">
-                    <button type="button" class="btn btn-primary">Añadir nuevo cliente</button>
-                </a>
+    <div class="page-title-area">
+        <div class="row align-items-center">
+            <div class="col-sm-6">
+                <div class="breadcrumbs-area clearfix">
+                    <h4 class="page-title pull-left">Clientes</h4>
+                    <ul class="breadcrumbs pull-left">
+                        <li><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
+                        <li><span>Clientes</span></li>
+                    </ul>
+                </div>
             </div>
-        @endcan
-
-        <div class="card">
-            <div class="card-header">
-                <i class="fas fa-table me-1"></i>
-                Tabla de clientes
-            </div>
-            <div class="card-body">
-                <table id="datatablesSimple" class="table table-striped fs-6">
-                    <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Dirección</th>
-                            <th>Documento</th>
-                            <th>Tipo de persona</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($clientes as $cliente)
-                            <tr>
-                                <td>{{ $cliente->persona->razon_social }}</td>
-                                <td>{{ $cliente->persona->direccion }}</td>
-                                <td>
-                                    <p class="fw-semibold mb-1">{{ $cliente->persona->documento->tipo_documento }}</p>
-                                    <p class="text-muted mb-0">{{ $cliente->persona->numero_documento }}</p>
-                                </td>
-                                <td>{{ $cliente->persona->tipo_persona }}</td>
-                                <td>
-                                    @if ($cliente->persona->estado == 1)
-                                        <span class="badge rounded-pill text-bg-success">activo</span>
-                                    @else
-                                        <span class="badge rounded-pill text-bg-danger">eliminado</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    <div class="d-flex justify-content-around">
-                                        <div>
-                                            <button title="Opciones" class="btn btn-datatable btn-icon btn-transparent-dark me-2" data-bs-toggle="dropdown" aria-expanded="false">
-                                                <svg class="svg-inline--fa fa-ellipsis-vertical" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="ellipsis-vertical" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 512" data-fa-i2svg="">
-                                                    <path fill="currentColor" d="M56 472a56 56 0 1 1 0-112 56 56 0 1 1 0 112zm0-160a56 56 0 1 1 0-112 56 56 0 1 1 0 112zM0 96a56 56 0 1 1 112 0A56 56 0 1 1 0 96z"></path>
-                                                </svg>
-                                            </button>
-                                            <ul class="dropdown-menu text-bg-light" style="font-size: small;">
-                                                @can('editar-cliente')
-                                                    <li><a class="dropdown-item" href="{{ route('admin.clientes.edit', ['cliente' => $cliente]) }}">Editar</a></li>
-                                                @endcan
-                                            </ul>
-                                        </div>
-
-                                        <div>
-                                            <div class="vr"></div>
-                                        </div>
-
-                                        <div>
-                                            @can('eliminar-cliente')
-                                                @if ($cliente->persona->estado == 1)
-                                                    <button title="Eliminar" data-bs-toggle="modal" data-bs-target="#confirmModal-{{ $cliente->id }}" class="btn btn-datatable btn-icon btn-transparent-dark">
-                                                        <svg class="svg-inline--fa fa-trash-can" aria-hidden="true" focusable="false" data-prefix="far" data-icon="trash-can" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" data-fa-i2svg="">
-                                                            <path fill="currentColor" d="M170.5 51.6L151.5 80h145l-19-28.4c-1.5-2.2-4-3.6-6.7-3.6H177.1c-2.7 0-5.2 1.3-6.7 3.6zm147-26.6L354.2 80H368h48 8c13.3 0 24 10.7 24 24s-10.7 24-24 24h-8V432c0 44.2-35.8 80-80 80H112c-44.2 0-80-35.8-80-80V128H24c-13.3 0-24-10.7-24-24S10.7 80 24 80h8H80 93.8l36.7-55.1C140.9 9.4 158.4 0 177.1 0h93.7c18.7 0 36.2 9.4 46.6 24.9zM80 128V432c0 17.7 14.3 32 32 32H336c17.7 0 32-14.3 32-32V128H80zm80 64V400c0 8.8-7.2 16-16 16s-16-7.2-16-16V192c0-8.8 7.2-16 16-16s16 7.2 16 16zm80 0V400c0 8.8-7.2 16-16 16s-16-7.2-16-16V192c0-8.8 7.2-16 16-16s16 7.2 16 16zm80 0V400c0 8.8-7.2 16-16 16s-16-7.2-16-16V192c0-8.8 7.2-16 16-16s16 7.2 16 16z"></path>
-                                                        </svg>
-                                                    </button>
-                                                @else
-                                                    <button title="Restaurar" data-bs-toggle="modal" data-bs-target="#confirmModal-{{ $cliente->id }}" class="btn btn-datatable btn-icon btn-transparent-dark">
-                                                        <i class="fa-solid fa-rotate"></i>
-                                                    </button>
-                                                @endif
-                                            @endcan
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <!-- Modal de confirmación-->
-                            <div class="modal fade" id="confirmModal-{{ $cliente->id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h1 class="modal-title fs-5" id="exampleModalLabel">Mensaje de confirmación</h1>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            {{ $cliente->persona->estado == 1 ? '¿Seguro que quieres eliminar el cliente?' : '¿Seguro que quieres restaurar el cliente?' }}
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                                            <form action="{{ route('admin.clientes.destroy', ['cliente' => $cliente->persona->id]) }}" method="post">
-                                                @method('DELETE')
-                                                @csrf
-                                                <button type="submit" class="btn btn-danger">Confirmar</button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </tbody>
-                </table>
+            <div class="col-sm-6 clearfix">
+                @include('backend.layouts.partials.logout')
             </div>
         </div>
     </div>
+
+    <div class="main-content-inner">
+        <div class="row">
+            <div class="col-12 mt-5">
+                <div class="card">
+                    <div class="card-body">
+                        <p class="float-right mb-2">
+                            <a class="btn btn-primary text-white" href="{{ route('admin.clientes.create') }}">Crear nuevo cliente</a>
+                        </p>
+
+                        <form action="{{ route('admin.clientes.index') }}" method="GET" class="mb-4">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <select name="tipo_persona" id="tipo_persona" class="form-control">
+                                        <option value="">Seleccionar tipo de cliente</option>
+                                        <option value="natural" {{ request('tipo_persona') == 'natural' ? 'selected' : '' }}>Persona natural</option>
+                                        <option value="juridica" {{ request('tipo_persona') == 'juridica' ? 'selected' : '' }}>Persona jurídica</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <select name="documento_id" id="documento_id" class="form-control">
+                                        <option value="">Seleccionar tipo de documento</option>
+                                        @foreach($documentos as $documento)
+                                            <option value="{{ $documento->id }}" {{ request('documento_id') == $documento->id ? 'selected' : '' }}>{{ $documento->tipo_documento }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="col-md-2">
+                                    <label>&nbsp;</label>
+                                    <button type="submit" class="btn btn-primary form-control">Filtrar</button>
+                                </div>
+                            </div>
+                        </form>
+
+                        @include('backend.layouts.partials.messages')
+
+                        <div class="data-tables">
+                            <table id="data-Table" class="table table-striped table-hover table-bordered">
+                                <thead class="bg-primary text-white border-bottom">
+                                <tr>
+                                    <th class="icon-column"><i class="fa fa-user"></i> Nombre</th>
+                                    <th class="icon-column"><i class="fa fa-id-card"></i> Tipo de Persona</th>
+                                    <th class="icon-column"><i class="fa fa-file-alt"></i> Documento</th>
+                                    <th class="icon-column"><i class="fa fa-map-marker-alt"></i> Dirección</th>
+                                    <th class="icon-column"><i class="fa fa-toggle-on"></i> Estado</th>
+                                    <th class="icon-column"><i class="fa fa-cogs"></i> Acciones</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach($clientes as $cliente)
+                                    <tr>
+                                        <td>{{ $cliente->persona->razon_social }}</td>
+                                        <td>{{ ucfirst($cliente->persona->tipo_persona) }}</td>
+                                        <td>
+                                            <p class="fw-semibold mb-1">{{ $cliente->persona->documento->tipo_documento }}</p>
+                                            <p class="text-muted mb-0">{{ $cliente->persona->numero_documento }}</p>
+                                        </td>
+                                        <td>{{ $cliente->persona->direccion }}</td>
+                                        <td>
+                                            @if($cliente->persona->estado == 1)
+                                                <span class="badge badge-success">Activo</span>
+                                            @else
+                                                <span class="badge badge-danger">Inactivo</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <a href="{{ route('admin.clientes.edit', $cliente->id) }}" class="btn btn-primary btn-sm">
+                                                <i class="fa fa-edit"></i> Editar
+                                            </a>
+                                            <form action="{{ route('admin.clientes.destroy', $cliente->id) }}" method="POST" style="display: inline-block;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de eliminar este cliente?')">
+                                                    <i class="fa fa-trash"></i> Eliminar
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
 
 @section('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
-    <script src="{{ asset('js/datatables-simple-demo.js') }}"></script>
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
+    <script src="https://cdn.datatables.net/1.10.18/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+    <script>
+        if ($('#data-Table').length) {
+            $('#data-Table').DataTable({
+                responsive: true
+            });
+        }
+    </script>
 @endsection

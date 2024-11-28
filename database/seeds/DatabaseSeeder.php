@@ -1,5 +1,8 @@
 <?php
 
+
+use Database\Seeders\ComprobanteSeeder;
+use Database\Seeders\DocumentoSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -11,8 +14,15 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call(ComprobanteSeeder::class);
+        $this->call(DocumentoSeeder::class);
         $this->call(UserSeeder::class);
         $this->call(AdminSeeder::class);
         $this->call(RolePermissionSeeder::class);
+
+
+
+
+
     }
 }

@@ -14,24 +14,19 @@ return new class extends Migration
         Schema::create('productos', function (Blueprint $table) {
             $table->id();
             $table->string('sku')->unique();
-            $table->string('name')->nullable();
-            $table->string('Descripcion'); 
-            $table->integer('cantidad')->unsigned(); 
-            $table->string('image')->nullable();  
-            $table->foreignId('almacen_id')->nullable()->constrained('almacenes')->nullOnDelete();
+            $table->string('nombre',80);
+            $table->string('Descripcion');
+            $table->integer('cantidad')->unsigned();
+            $table->decimal('precio', 10, 2);
+            $table->string('image')->nullable();
             $table->foreignId('categoria_id')->nullable()->constrained('categorias')->nullOnDelete();
-            $table->foreignId('marca_id')->nullable()->constrained('marcas')->nullOnDelete(); 
-            $table->timestamp('fecha_creacion')->nullable(); 
-            $table->string('slug')->unique(); 
-            $table->longText('detalles_adicionales')->nullable(); 
-            $table->decimal('descuento', 5, 2)->nullable(); 
-            $table->decimal('precio_venta', 10, 2)->default(0); 
-            $table->decimal('precio_mayor', 10, 2)->default(0); 
-            $table->decimal('precio_distribuidor', 10, 2)->default(0); 
-            $table->decimal('precio_compra', 10, 2)->default(0); 
-            $table->unsignedInteger('stock_minimo')->default(1);
-            $table->unsignedInteger('stock_actual')->default(0);
-            $table->integer('status')->default(1); 
+            $table->tinyInteger('estado')->default(1);
+            $table->foreignId('marca_id')->nullable()->constrained('marcas')->nullOnDelete();
+            $table->timestamp('fecha_creacion')->nullable();
+            $table->string('slug')->unique();
+            $table->longText('detalles_adicionales')->nullable();
+            $table->decimal('descuento', 5, 2)->nullable();
+            $table->integer('status')->default(1);
             $table->timestamps();
         });
     }
@@ -44,4 +39,3 @@ return new class extends Migration
         Schema::dropIfExists('productos');
     }
 };
-
