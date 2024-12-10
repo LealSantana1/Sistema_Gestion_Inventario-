@@ -75,7 +75,7 @@
                                     <th>SKU</th>
                                     <th>Nombre</th> <!-- Campo Nombre agregado -->
                                     <th>Descripción</th>
-                                    <th>Cantidad</th>
+                                    <th>Stock</th>
                                     <th>Precio</th>
                                     <th>Categoría</th>
                                     <th>Marca</th>
@@ -90,7 +90,7 @@
                                         <td>{{ $producto->sku }}</td>
                                         <td>{{ $producto->nombre }}</td> <!-- Nombre del producto -->
                                         <td>{{ $producto->Descripcion }}</td>
-                                        <td>{{ $producto->cantidad }}</td>
+                                        <td>{{ $producto->stock }}</td>
                                         <td>{{ $producto->precio }}</td>
                                         <td>{{ $producto->categoria ? $producto->categoria->name : 'N/A' }}</td>
                                         <td>{{ $producto->marca ? $producto->marca->name : 'N/A' }}</td>

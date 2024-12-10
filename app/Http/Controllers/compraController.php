@@ -62,7 +62,7 @@ class CompraController extends Controller
                 ]);
 
                 $producto = Producto::findOrFail($producto_id);
-                $producto->cantidad += intval($arrayCantidad[$index]);
+                $producto->stock += intval($arrayCantidad[$index]);
                 $producto->save();
             }
 

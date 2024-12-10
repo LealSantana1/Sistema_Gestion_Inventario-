@@ -57,8 +57,8 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="cantidad">Cantidad</label>
-                                <input type="number" name="cantidad" class="form-control" id="cantidad" value="{{ old('cantidad', $producto->cantidad) }}" required>
+                                <label for="cantidad">Stock</label>
+                                <input type="number" name="stock" class="form-control" id="stock" value="{{ old('stock', $producto->stock) }}" required>
                             </div>
 
                             <div class="form-group">

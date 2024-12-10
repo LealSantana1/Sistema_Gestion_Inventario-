@@ -34,7 +34,7 @@
                                 <p><strong>SKU:</strong> {{ $producto->sku }}</p>
                                 <p><strong>Nombre:</strong> {{ $producto->nombre }}</p>
                                 <p><strong>Descripción:</strong> {{ $producto->Descripcion }}</p>
-                                <p><strong>Cantidad:</strong> {{ $producto->cantidad }}</p>
+                                <p><strong>Stock:</strong> {{ $producto->stock }}</p>
                                 <p><strong>Precio:</strong> ${{ number_format($producto->precio, 2) }}</p>
                                 <p><strong>Marca:</strong> {{ $producto->marca->name ?? 'N/A' }}</p>
                             </div>

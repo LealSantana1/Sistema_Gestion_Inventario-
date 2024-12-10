@@ -29,11 +29,6 @@
                         <a href="javascript:void(0)" aria-expanded="true"><i class="fa fa-tasks"></i><span>
                             Gestion de Inventario
                         </span></a>
-                        <ul class="collapse {{ Route::is('admin.productos.create') || Route::is('admin.productos.index') || Route::is('admin.productos.edit') || Route::is('admin.productos.show') ? 'in' : '' }}">
-                            @if ($usr->can('role.view'))
-                                <li class="{{ Route::is('admin.productos.index')  || Route::is('admin.productos.edit') ? 'active' : '' }}"><a href="{{ route('admin.productos.index') }}">productos</a></li>
-                            @endif
-                        </ul>
                         <ul class="collapse {{ Route::is('admin.categorias.create') || Route::is('admin.categorias.index') || Route::is('admin.categorias.edit') || Route::is('admin.categorias.show') ? 'in' : '' }}">
                             @if ($usr->can('role.view'))
                                 <li class="{{ Route::is('admin.categorias.index')  || Route::is('admin.categorias.edit') ? 'active' : '' }}"><a href="{{ route('admin.categorias.index') }}">Gestion de categorias</a></li>
@@ -44,6 +39,13 @@
                                 <li class="{{ Route::is('admin.marcas.index')  || Route::is('admin.marcas.edit') ? 'active' : '' }}"><a href="{{ route('admin.marcas.index') }}">Tipos de marcas</a></li>
                             @endif
                         </ul>
+                        <ul class="collapse {{ Route::is('admin.productos.create') || Route::is('admin.productos.index') || Route::is('admin.productos.edit') || Route::is('admin.productos.show') ? 'in' : '' }}">
+                            @if ($usr->can('role.view'))
+                                <li class="{{ Route::is('admin.productos.index')  || Route::is('admin.productos.edit') ? 'active' : '' }}"><a href="{{ route('admin.productos.index') }}">productos</a></li>
+                            @endif
+                        </ul>
+
+
                     </li>
                     @endif
 

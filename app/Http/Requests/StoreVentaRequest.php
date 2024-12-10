@@ -22,7 +22,7 @@ class StoreVentaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'fecha_hora' => 'required',
+            'fecha_hora' => 'required|date',
             'impuesto' => 'required',
             'numero_comprobante' => 'required|unique:ventas,numero_comprobante|max:255',
             'total' => 'required|numeric',

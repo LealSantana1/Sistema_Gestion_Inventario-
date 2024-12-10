@@ -7,6 +7,7 @@ use App\Models\Cliente;
 use App\Models\Comprobante;
 use App\Models\Producto;
 use App\Models\Venta;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -15,7 +16,7 @@ class ventaController extends Controller
 {
     public function index()
     {
-        $ventas = Venta::with(['comprobante','cliente.persona','user'])
+        $ventas = Venta::with(['comprobante', 'cliente.persona', 'user'])
             ->where('estado', 1)
             ->latest()
             ->get();
@@ -41,9 +42,9 @@ class ventaController extends Controller
                         ->whereRaw('subquery.producto_id = cpr.producto_id');
                 });
         })
-            ->select('productos.nombre', 'productos.id', 'productos.cantidad', 'cpr.precio_venta')
+            ->select('productos.nombre', 'productos.id', 'productos.stock', 'cpr.precio_venta')
             ->where('productos.estado', 1)
-            ->where('productos.cantidad', '>', 0)
+            ->where('productos.stock', '>', 0)
             ->get();
 
         // Obtener clientes activos
@@ -66,39 +67,57 @@ class ventaController extends Controller
         try {
             DB::beginTransaction();
 
+            // Verifica todos los datos que se están enviando
+            // dd($request->all());  // Esto te mostrará todos los datos enviados por el formulario
+
+            // Asegúrate de que 'fecha_hora' se está enviando correctamente desde el formulario
+            $fecha = Carbon::parse($request->fecha_hora); // Aquí cambiamos de 'fecha' a 'fecha_hora'
+
+            // Verifica que 'total' esté presente
+            $total = $request->total;
+
             // Llenar la tabla venta
-            $venta = Venta::create($request->validated());
+            $venta = Venta::create(array_merge($request->validated(), ['fecha_hora' => $fecha, 'total' => $total])); // Añadimos 'total'
 
             // Recuperar los arrays enviados desde el formulario
-            $arrayProducto_id = $request->get('arrayidproducto');
-            $arrayCantidadVenta = $request->get('arraycantidad'); // Cambié el nombre para claridad
-            $arrayPrecioVenta = $request->get('arrayprecioventa');
-            $arrayDescuento = $request->get('arraydescuento');
+            $arrayProducto_id = $request->get('arrayidproducto', []); // Valor por defecto es array vacío
+            $arrayCantidad = $request->get('arraycantidad', []); // Valor por defecto es array vacío
+            $arrayPrecioVenta = $request->get('arrayprecioventa', []); // Valor por defecto es array vacío
+            $arrayDescuento = $request->get('arraydescuento', []); // Valor por defecto es array vacío
 
-            // Realizar el llenado de la tabla intermedia venta_producto
-            $siseArray = count($arrayProducto_id);
+            // Verifica si los arrays no están vacíos
+            if (empty($arrayProducto_id) || empty($arrayCantidad) || empty($arrayPrecioVenta) || empty($arrayDescuento)) {
+                return redirect()->back()->with('error', 'No se proporcionaron productos válidos.');
+            }
+
+            $sizeArray = count($arrayProducto_id);
             $cont = 0;
 
-            while ($cont < $siseArray) {
+            while ($cont < $sizeArray) {
                 // Sincronizar los productos con la venta
                 $venta->productos()->syncWithoutDetaching([
                     $arrayProducto_id[$cont] => [
-                        'cantidad' => $arrayCantidadVenta[$cont],  // Esta es la cantidad de la venta
+                        'cantidad' => $arrayCantidad[$cont],
                         'precio_venta' => $arrayPrecioVenta[$cont],
                         'descuento' => $arrayDescuento[$cont]
                     ]
                 ]);
 
-                // Actualizar la cantidad en el inventario
+                // Obtener el producto y verificar el stock
                 $producto = Producto::find($arrayProducto_id[$cont]);
-                $cantidadInventario = $producto->cantidad;  // Esta es la cantidad en inventario
-                $cantidadVenta = intval($arrayCantidadVenta[$cont]);
+                $stockActual = $producto->stock;
+                $cantidad = intval($arrayCantidad[$cont]);
+
+                // Verificar si hay suficiente stock
+                if ($cantidad > $stockActual) {
+                    return redirect()->back()->with('error', 'No hay suficiente stock para el producto: ' . $producto->nombre);
+                }
 
                 // Restar la cantidad vendida del inventario
                 DB::table('productos')
                     ->where('id', $producto->id)
                     ->update([
-                        'cantidad' => $cantidadInventario - $cantidadVenta  // Restar la cantidad vendida
+                        'stock' => $stockActual - $cantidad
                     ]);
 
                 $cont++;
@@ -108,6 +127,7 @@ class ventaController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             // Manejar el error adecuadamente si es necesario
+            return redirect()->route('admin.ventas.index')->with('error', 'Error al procesar la venta: ' . $e->getMessage());
         }
 
         // Redirigir a la lista de ventas con un mensaje de éxito

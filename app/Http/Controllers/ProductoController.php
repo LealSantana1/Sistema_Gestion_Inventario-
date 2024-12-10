@@ -52,7 +52,7 @@ class ProductoController extends Controller
             'sku' => 'required|string|max:255|unique:productos,sku',
             'nombre' => 'required|string|max:255', // Agregado el campo 'nombre'
             'Descripcion' => 'required|string|max:255',
-            'cantidad' => 'required|integer',
+            'stock' => 'required|integer',
             'precio' => 'required|numeric',
             'categoria_id' => 'required|exists:categorias,id',
             'marca_id' => 'required|exists:marcas,id',
@@ -68,7 +68,7 @@ class ProductoController extends Controller
         $producto->sku = $request->sku;
         $producto->nombre = $request->nombre; // Asignar el campo 'nombre'
         $producto->Descripcion = $request->Descripcion;
-        $producto->cantidad = $request->cantidad;
+        $producto->stock = $request->stock;
         $producto->precio = $request->precio;
         $producto->categoria_id = $request->categoria_id;
         $producto->marca_id = $request->marca_id;
@@ -122,7 +122,7 @@ class ProductoController extends Controller
             'sku' => 'required|string|max:255|unique:productos,sku,' . $producto->id,
             'nombre' => 'required|string|max:255', // Agregado el campo 'nombre'
             'Descripcion' => 'required|string|max:255',
-            'cantidad' => 'required|integer',
+            'stock' => 'required|integer',
             'precio' => 'required|numeric',
             'categoria_id' => 'required|exists:categorias,id',
             'marca_id' => 'required|exists:marcas,id',
