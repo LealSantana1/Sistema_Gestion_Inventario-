@@ -49,32 +49,31 @@
                                             </select>
                                         </div>
 
-
-
-                                        <!-----Stock--->
+                                        <!-- Stock -->
                                         <div class="d-flex justify-content-end">
                                             <div class="col-12 col-sm-6">
                                                 <div class="row">
-                                                    <label for="cantidad" class="col-form-label col-4">Cantidad:</label>
+                                                    <label for="stock" class="col-form-label col-4">Stock:</label>
                                                     <div class="col-8">
-                                                        <input disabled id="cantidad" type="text" class="form-control">
+                                                        <input disabled id="stock" type="text" class="form-control">
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <!-----Precio de venta---->
+
+                                        <!-- Precio de venta -->
                                         <div class="col-sm-4">
                                             <label for="precio_venta" class="form-label">Precio de venta:</label>
                                             <input disabled type="number" name="precio_venta" id="precio_venta" class="form-control" step="0.1">
                                         </div>
 
-                                        <!-----Cantidad---->
+                                        <!-- Cantidad -->
                                         <div class="col-sm-4">
                                             <label for="cantidad" class="form-label">Cantidad:</label>
                                             <input type="number" name="cantidad" id="cantidad" class="form-control">
                                         </div>
 
-                                        <!----Descuento---->
+                                        <!-- Descuento -->
                                         <div class="col-sm-4">
                                             <label for="descuento" class="form-label">Descuento:</label>
                                             <input type="number" name="descuento" id="descuento" class="form-control">
@@ -146,19 +145,22 @@
                                         </div>
 
                                         <div class="form-group">
+                                            <label for="fecha_hora">Fecha y Hora <i class="fas fa-calendar-alt"></i>:</label>
+                                            <input type="datetime-local" name="fecha_hora" id="fecha_hora" class="form-control"
+                                                   value="{{ old('fecha_hora') ?? \Carbon\Carbon::now()->format('Y-m-d\TH:i') }}" required>
+                                        </div>
+                                        <div class="form-group">
                                             <label for="impuesto">Impuesto (IGV):</label>
                                             <input type="text" name="impuesto" id="impuesto" class="form-control" value="18" readonly>
                                         </div>
 
                                         <div class="form-group">
-                                            <label for="fecha">Fecha:</label>
-                                            <input type="date" name="fecha" id="fecha" class="form-control" value="{{ \Carbon\Carbon::now()->toDateString() }}" readonly>
-                                        </div>
-
-                                        <div class="form-group">
                                             <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
                                         </div>
-
+                                        <div class="form-group">
+                                            <label for="total">Total <i class="fas fa-dollar-sign"></i>:</label>
+                                            <input type="text" name="total" id="total" class="form-control" readonly>
+                                        </div>
                                         <div class="form-group text-center">
                                             <button type="submit" class="btn btn-success">Realizar Venta</button>
                                         </div>
@@ -180,10 +182,14 @@
             let contador = 0;
             let totalVenta = 0;
 
+            // Función para actualizar los totales
             function actualizarTotales() {
                 let igv = totalVenta * 0.18;
                 $('#igv').text(igv.toFixed(2));
                 $('#total').text((totalVenta + igv).toFixed(2));
+
+                // Asegurarse de que el campo total se actualice antes de enviar
+                $('input[name="total"]').val((totalVenta + igv).toFixed(2));  // Actualiza el campo oculto total
             }
 
             // Actualizar stock y precio cuando se seleccione un producto
