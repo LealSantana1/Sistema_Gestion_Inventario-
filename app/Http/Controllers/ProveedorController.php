@@ -15,10 +15,9 @@ class ProveedorController extends Controller
 {
     public function index()
     {
-        // Obtener proveedores con la relación persona.documento
         $proveedores = Proveedor::with('persona.documento')->get();
-        $documentos = Documento::all();  // Obtener todos los documentos
-        return view('proveedor.index', compact('proveedores', 'documentos'));  // Pasar 'documentos' a la vista
+        $documentos = Documento::all();
+        return view('proveedor.index', compact('proveedores', 'documentos'));
     }
 
     public function create()
@@ -31,14 +30,10 @@ class ProveedorController extends Controller
     {
         try {
             DB::beginTransaction();
-            // Crear la persona
             $persona = Persona::create($request->validated());
-
-            // Crear proveedor asociado a la persona
             $persona->proveedor()->create([
                 'persona_id' => $persona->id
             ]);
-
             DB::commit();
             return redirect()->route('admin.proveedores.index')->with('success', 'Proveedor registrado');
         } catch (Exception $e) {
@@ -50,17 +45,13 @@ class ProveedorController extends Controller
 
     public function show(string $id)
     {
-        // Implementar lógica si es necesario
     }
 
     public function edit(Proveedor $proveedor)
     {
-        // Verificar si la relación persona existe
         if (!$proveedor || !$proveedor->persona) {
             abort(404, 'Proveedor o Persona no encontrado');
         }
-
-        // Asegúrate de cargar las relaciones de persona y documento
         $proveedor->load('persona.documento');
         $documentos = Documento::all();
         return view('proveedor.edit', compact('proveedor', 'documentos'));
@@ -70,16 +61,11 @@ class ProveedorController extends Controller
     {
         try {
             DB::beginTransaction();
-
-            // Verificar si el proveedor tiene una relación persona cargada
             if (!$proveedor->persona) {
                 abort(404, 'Persona asociada al proveedor no encontrada');
             }
-
-            // Actualizar la persona asociada al proveedor
             Persona::where('id', $proveedor->persona->id)
                 ->update($request->validated());
-
             DB::commit();
             return redirect()->route('admin.proveedores.index')->with('success', 'Proveedor editado');
         } catch (Exception $e) {
@@ -98,15 +84,13 @@ class ProveedorController extends Controller
             return redirect()->route('admin.proveedores.index')->with('error', 'Persona no encontrada');
         }
 
-        if ($persona->estado == 1) {
-            Persona::where('id', $persona->id)
-                ->update(['estado' => 0]);
-            $message = 'Proveedor eliminado';
-        } else {
-            Persona::where('id', $persona->id)
-                ->update(['estado' => 1]);
-            $message = 'Proveedor restaurado';
+        if ($persona->proveedor) {
+            $persona->proveedor()->delete();
         }
+
+        $persona->delete();
+
+        $message = 'Proveedor y persona eliminados permanentemente';
 
         return redirect()->route('admin.proveedores.index')->with('success', $message);
     }

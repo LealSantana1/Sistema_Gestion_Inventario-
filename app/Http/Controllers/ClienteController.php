@@ -46,20 +46,25 @@ class ClienteController extends Controller
     {
         try {
             DB::beginTransaction();
+
+            // Crear persona y cliente relacionado
             $persona = Persona::create($request->validated());
             $persona->cliente()->create([
                 'persona_id' => $persona->id
             ]);
+
             DB::commit();
+
+            return redirect()->route('admin.clientes.index')->with('success', 'Cliente registrado');
         } catch (Exception $e) {
             DB::rollBack();
+            return redirect()->route('admin.clientes.index')->with('error', 'Error al registrar el cliente: ' . $e->getMessage());
         }
-
-        return redirect()->route('admin.clientes.index')->with('success', 'Cliente registrado');
     }
 
     public function show(string $id)
     {
+        // Puedes implementar esta función si necesitas mostrar detalles de un cliente.
     }
 
     public function edit(Cliente $cliente)
@@ -74,15 +79,17 @@ class ClienteController extends Controller
         try {
             DB::beginTransaction();
 
+            // Actualizar información de la persona asociada
             Persona::where('id', $cliente->persona->id)
                 ->update($request->validated());
 
             DB::commit();
+
+            return redirect()->route('admin.clientes.index')->with('success', 'Cliente editado');
         } catch (Exception $e) {
             DB::rollBack();
+            return redirect()->route('admin.clientes.index')->with('error', 'Error al editar el cliente: ' . $e->getMessage());
         }
-
-        return redirect()->route('admin.clientes.index')->with('success', 'Cliente editado');
     }
 
     public function destroy(string $id)
@@ -90,21 +97,26 @@ class ClienteController extends Controller
         try {
             DB::beginTransaction();
 
+            // Encuentra la persona asociada al cliente
             $persona = Persona::find($id);
+
             if ($persona) {
+                // Elimina el cliente relacionado
                 $persona->cliente()->delete();
+
+                // Elimina la persona
                 $persona->delete();
 
                 DB::commit();
 
-                return redirect()->route('admin.clientes.index')->with('success', 'Cliente eliminado');
+                return redirect()->route('admin.clientes.index')->with('success', 'Cliente eliminado permanentemente');
             } else {
+                DB::rollBack();
                 return redirect()->route('admin.clientes.index')->with('error', 'Cliente no encontrado');
             }
-
         } catch (Exception $e) {
             DB::rollBack();
-            return redirect()->route('admin.clientes.index')->with('error', 'Error al eliminar el cliente');
+            return redirect()->route('admin.clientes.index')->with('error', 'Error al eliminar el cliente: ' . $e->getMessage());
         }
     }
 }

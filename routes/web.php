@@ -152,6 +152,8 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::put('proveedores/{proveedor}', [ProveedorController::class, 'update'])->name('proveedores.update');
     Route::delete('proveedores/{proveedor}', [ProveedorController::class, 'destroy'])->name('proveedores.destroy');
 
+
+
 });
 
 Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
